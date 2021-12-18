@@ -14,11 +14,14 @@ export default class Login extends Vue {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="scss">
 .login {
   display: flex;
   align-items: center;
   justify-content: center;
+  div {
+    margin: 10px;
+  }
 }
 .name {
   width: 20%;
