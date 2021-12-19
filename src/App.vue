@@ -1,32 +1,44 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div class="travel-wrapper">
+      <div class="travel-nav">
+        <Navbar v-show="isShow"></Navbar>
+      </div>
+      <div class="travel-content">
+        <router-view></router-view>
+      </div>
     </div>
-    <router-view/>
   </div>
 </template>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script lang='ts'>
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import Navbar from './components/common/Navbar.vue'
+@Component({
+  components: {
+    Navbar,
+  },
+})
+export default class App extends Vue {
+  isShow = false
 }
-
-#nav {
-  padding: 30px;
+</script>
+<style lang='scss'>
+* {
+  margin: 0;
+  padding: 0;
 }
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+.travel-wrapper {
+  width: 90vw;
+  height: 100vh;
+  margin-left: 5vw;
+  .travel-nav {
+    height: 10%;
+  }
+  .travel-content {
+    height: 88%;
+    background: white;
+    margin-top: 4px;
+    box-shadow: 0 0 5px lightgray;
+  }
 }
 </style>
