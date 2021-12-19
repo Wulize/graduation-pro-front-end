@@ -66,12 +66,13 @@
 
 <script lang='ts'>
 import { Component, Vue } from "vue-property-decorator";
+import axios from "axios";
 @Component
 export default class Register extends Vue {
-  userName = ""; //用户名
-  userEmail = ""; //用户邮箱
-  userCode1 = ""; // 用户密码1
-  userCode2 = ""; // 用户密码2
+  userName = "";
+  userEmail = "";
+  userCode1 = "";
+  userCode2 = "";
   userValidation = ""; // 用户输入验证码
   validationMessage = "获取验证码"; // 获取验证码按钮的显示信息
   // 未点击前：获取验证码
@@ -83,11 +84,20 @@ export default class Register extends Vue {
     this.ifConfirmForbidden = false;
     this.ifValidationForbidden = true;
     this.validationMessage = this.countDown + "s";
+    axios({
+      method: "get",
+      url: "http://localhost:3000/users/email",
+      withCredentials: true,
+      params: {
+        user_name: this.userName,
+        email: this.userEmail,
+      },
+    });
     this.getCountDown();
   }
   getCountDown() {
     // 获取倒计时
-    if (this.countDown == 0) {
+    if (this.countDown === 0) {
       return;
     } else {
       setTimeout(() => {
