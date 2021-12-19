@@ -29,16 +29,17 @@ export default class App extends Vue {
 }
 .travel-wrapper {
   width: 90vw;
-  height: 100vh;
+  height: 96vh; // 100vh会出现滚动条
   margin-left: 5vw;
+  overflow: hidden;
   .travel-nav {
     height: 10%;
   }
   .travel-content {
-    height: 88%;
+    height: 85%;
     background: white;
     margin-top: 4px;
-    box-shadow: 0 0 5px lightgray;
+    box-shadow: 0 0 10px lightgray;
   }
 }
 </style>
