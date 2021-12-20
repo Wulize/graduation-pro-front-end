@@ -69,18 +69,18 @@ import { Component, Vue } from "vue-property-decorator";
 import axios from "axios";
 @Component
 export default class Register extends Vue {
-  userName = "";
-  userEmail = "";
-  userCode1 = "";
-  userCode2 = "";
-  userValidation = ""; // 用户输入验证码
-  validationMessage = "获取验证码"; // 获取验证码按钮的显示信息
+  public userName: string = "";
+  public userEmail: string = "";
+  public userCode1: string = "";
+  public userCode2: string = "";
+  public userValidation: string = ""; // 用户输入验证码
+  public validationMessage: string = "获取验证码"; // 获取验证码按钮的显示信息
   // 未点击前：获取验证码
   // 点击后：倒计时
-  countDown = 60; // 倒计时
-  ifConfirmForbidden = true; // 是否禁用确定按钮
-  ifValidationForbidden = false; // 是否禁用获取验证码按钮
-  getValidation() {
+  public countDown: number = 60; // 倒计时
+  public ifConfirmForbidden: boolean = true; // 是否禁用确定按钮
+  public ifValidationForbidden: boolean = false; // 是否禁用获取验证码按钮
+  public getValidation() {
     this.ifConfirmForbidden = false;
     this.ifValidationForbidden = true;
     this.validationMessage = this.countDown + "s";
@@ -95,7 +95,7 @@ export default class Register extends Vue {
     });
     this.getCountDown();
   }
-  getCountDown() {
+  public getCountDown() {
     // 获取倒计时
     if (this.countDown === 0) {
       return;

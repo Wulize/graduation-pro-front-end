@@ -11,15 +11,15 @@
   </div>
 </template>
 <script lang='ts'>
-import { Component, Prop, Vue } from 'vue-property-decorator'
-import Navbar from './components/common/Navbar.vue'
+import { Component, Prop, Vue } from "vue-property-decorator";
+import Navbar from "./components/common/Navbar.vue";
 @Component({
   components: {
     Navbar,
   },
 })
 export default class App extends Vue {
-  isShow = false
+  public isShow = false;
 }
 </script>
 <style lang='scss'>
