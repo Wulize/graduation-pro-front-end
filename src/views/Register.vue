@@ -6,42 +6,38 @@
     </div>
     <!-- 注册页输入 -->
     <el-form ref="form" :model="form" :rules="rules" class="input-wrapper">
-      <el-form-item prop="email">
+      <el-form-item prop="userEmail">
         <el-input
           v-model="form.userEmail"
           placeholder="请输入您的邮箱"
           class="user-input"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="username">
+      <el-form-item prop="userName">
         <el-input
           v-model="form.userName"
           placeholder="请输入您的用户名"
-          class="user-input"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="usercode1">
+      <el-form-item prop="userCode1">
         <el-input
           v-model="form.userCode1"
           placeholder="请输入您的密码"
           showPassword
-          class="user-input"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="usercode2">
+      <el-form-item prop="userCode2">
         <el-input
           v-model="form.userCode2"
           placeholder="请再次输入您的密码"
           showPassword
-          class="user-input"
         >
         </el-input>
       </el-form-item>
-      <el-form-item class="code-wrapper" prop="validation">
+      <el-form-item id="code-wrapper" prop="userValidation">
         <el-input
           v-model="form.userValidation"
           placeholder="请输入验证码"
-          class="user-input"
         ></el-input>
         <el-button
           type="primary"
@@ -51,10 +47,14 @@
           >{{ validationMessage }}</el-button
         >
       </el-form-item>
-      <div class="confirm-wrapper">
-        <el-button type="primary" class="confirm" :disabled="ifConfirmForbidden"
-          >确定</el-button
+      <div>
+        <el-button
+          type="primary"
+          :disabled="ifConfirmForbidden"
+          @click="commit"
         >
+          确定
+        </el-button>
       </div>
     </el-form>
   </div>
@@ -63,9 +63,9 @@
 <script lang='ts'>
 import { Component, Vue } from "vue-property-decorator";
 import axios from "axios";
+import router from "@/router";
 @Component
 export default class Register extends Vue {
-  public userCode2: string = "";
   public form: any = {
     userName: "",
     userEmail: "",
@@ -80,34 +80,70 @@ export default class Register extends Vue {
   public ifConfirmForbidden: boolean = true; // 是否禁用确定按钮
   public ifValidationForbidden: boolean = false; // 是否禁用获取验证码按钮
   public rules: any = {
-    email: [
-      {
-        required: true,
-        message: "请输入邮箱",
-        validator: this.validateEmail,
-        trigger: "blur",
-      },
+    userEmail: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
+    userName: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+    userCode1: [{ required: true, message: "请输入密码", trigger: "blur" }],
+    userCode2: [{ required: true, message: "请再次输入密码", trigger: "blur" }],
+    userValidation: [
+      { required: true, message: "请输入验证码", trigger: "blur" },
     ],
-    username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-    usercode1: [{ required: true, message: "请输入密码", trigger: "blur" }],
-    usercode2: [{ required: true, message: "请再次输入密码", trigger: "blur" }],
-    validation: [{ required: true, message: "请输入验证码", trigger: "blur" }],
   };
   // 邮箱格式验证
-  public validateEmail(rule: string, value: string, callback: any) {
+  public validateEmail(value: string) {
     const mailReg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
     if (!value) {
-      return callback(new Error("邮箱不能为空"));
+      return false;
     }
-    setTimeout(() => {
-      if (mailReg.test(value)) {
-        callback();
-      } else {
-        callback(new Error("请输入正确的邮箱格式"));
-      }
-    }, 100);
+    if (mailReg.test(value)) {
+      return true;
+    } else {
+      this.$message({
+        showClose: true,
+        message: "邮件格式出错",
+        type: "warning",
+      });
+      return false;
+    }
   }
+  // 校验密码
+  public validatePassword() {
+    if (this.form.userCode1 === "" || this.form.userCode2 === "") {
+      this.$message({
+        showClose: true,
+        message: "密码不能为空！",
+        type: "warning",
+      });
+      return false;
+    } else if (this.form.userCode1 !== this.form.userCode2) {
+      this.$message({
+        showClose: true,
+        message: "前后密码不一致",
+        type: "warning",
+      });
+      return false;
+    } else return true;
+  }
+  // 点击获取验证码之前用户名不能为空
+  public validateUsername() {
+    if (this.form.userName === "") {
+      this.$message({
+        showClose: true,
+        message: "用户名不能为空！",
+        type: "warning",
+      });
+      return false;
+    } else return true;
+  }
+  // 点击获取验证码之前进行校验操作
   public getValidation() {
+    if (
+      !(
+        this.validateEmail(this.form.userEmail) &&
+        this.validatePassword() &&
+        this.validateUsername()
+      )
+    )
+      return;
     this.ifConfirmForbidden = false;
     this.ifValidationForbidden = true;
     this.validationMessage = this.countDown + "s";
@@ -116,15 +152,22 @@ export default class Register extends Vue {
       url: "http://localhost:3000/users/email",
       withCredentials: true,
       params: {
-        user_name: this.form.userName,
-        pass_word: this.form.userCode1,
+        userName: this.form.userName,
+        password: this.form.userCode1,
         email: this.form.userEmail,
       },
+    }).then((result) => {
+      const { message } = result.data;
+      this.$message({
+        showClose: true,
+        message,
+        type: "warning",
+      });
     });
     this.getCountDown();
   }
+  // 获取验证码后进行倒计时操作
   public getCountDown() {
-    // 获取倒计时
     if (this.countDown === 0) {
       return;
     } else {
@@ -134,6 +177,36 @@ export default class Register extends Vue {
         this.getCountDown();
       }, 1000);
     }
+  }
+  // 获得验证码之后提交验证码
+  public commit() {
+    axios({
+      method: "get",
+      url: "http://localhost:3000/users/register",
+      withCredentials: true,
+      params: {
+        userName: this.form.userName,
+        password: this.form.userCode1,
+        email: this.form.userEmail,
+        code: this.form.userValidation,
+      },
+    }).then((result: any) => {
+      const { status } = result.data;
+      if (status === 1) {
+        this.$message({
+          showClose: true,
+          message: "注册成功！快来定制你的旅游计划吧！",
+          type: "success",
+        });
+        this.$router.push("/login");
+      } else {
+        this.$message({
+          showClose: true,
+          message: "注册失败，请确认验证码！",
+          type: "warning",
+        });
+      }
+    });
   }
 }
 </script>
@@ -152,35 +225,11 @@ export default class Register extends Vue {
     }
   }
   .input-wrapper {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    text-align: center;
-    .el-form-item {
-      .el-form-item__error {
-        left: 26%;
-      }
-    }
-    div {
-      margin-top: 1%;
-      .user-input {
-        width: 50%;
-      }
-    }
-    .code-wrapper {
-      .validation-code {
-        width: 20%;
-      }
-      .user-input {
-        width: 30%;
-      }
-    }
-    .confirm-wrapper {
-      margin-top: 3.2%;
-      .confirm {
-        width: 50%;
+    margin: 10% 0 0 17%;
+    #code-wrapper {
+      .el-form-item__content {
+        display: flex !important;
+        margin-top: 3.2%;
       }
     }
   }
