@@ -62,7 +62,6 @@
 
 <script lang='ts'>
 import { Component, Vue } from "vue-property-decorator";
-import axios from "axios";
 import router from "@/router";
 @Component
 export default class Register extends Vue {
@@ -147,17 +146,13 @@ export default class Register extends Vue {
     this.ifConfirmForbidden = false;
     this.ifValidationForbidden = true;
     this.validationMessage = this.countDown + "s";
-    axios({
-      method: "get",
-      url: "http://localhost:3000/users/email",
-      withCredentials: true,
-      params: {
-        userName: this.form.userName,
-        password: this.form.userCode1,
-        email: this.form.userEmail,
-      },
-    }).then((result) => {
-      const { message } = result.data;
+    const params = {
+      userName: this.form.userName,
+      password: this.form.userCode1,
+      email: this.form.userEmail,
+    };
+    (this as any).$http.get("/users/email", params).then((result: any) => {
+      const { message } = result;
       this.$message({
         showClose: true,
         message,
@@ -180,18 +175,14 @@ export default class Register extends Vue {
   }
   // 获得验证码之后提交验证码
   public commit() {
-    axios({
-      method: "get",
-      url: "http://localhost:3000/users/register",
-      withCredentials: true,
-      params: {
-        userName: this.form.userName,
-        password: this.form.userCode1,
-        email: this.form.userEmail,
-        code: this.form.userValidation,
-      },
-    }).then((result: any) => {
-      const { status } = result.data;
+    const params: any = {
+      userName: this.form.userName,
+      password: this.form.userCode1,
+      email: this.form.userEmail,
+      code: this.form.userValidation,
+    };
+    (this as any).$http.get("/users/register", params).then((result: any) => {
+      const { status } = result;
       if (status === 1) {
         this.$message({
           showClose: true,
