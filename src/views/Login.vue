@@ -29,7 +29,6 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import axios from "axios";
 @Component
 export default class Login extends Vue {
   public loginInfo: any = {
@@ -44,55 +43,40 @@ export default class Login extends Vue {
     this.$router.push("/register");
   }
   public confirm() {
-    if (this.loginInfo.userName === "" && this.loginInfo.passWord !== "") {
+    if (this.loginInfo.userName === "") {
       this.$message({
         showClose: true,
         message: "请输入用户名！",
         type: "warning",
       });
-    } else if (
-      this.loginInfo.userName !== "" &&
-      this.loginInfo.passWord === ""
-    ) {
+    } else if (this.loginInfo.passWord === "") {
       this.$message({
         showClose: true,
-        message: "请输入密码！",
-        type: "warning",
-      });
-    } else if (
-      this.loginInfo.userName === "" &&
-      this.loginInfo.passWord === ""
-    ) {
-      this.$message({
-        showClose: true,
-        message: "请输入登录信息！",
+        message: "请输入登录密码！",
         type: "warning",
       });
     } else {
-      axios({
-        url: "http://localhost:3000/users/login",
-        method: "get",
-        withCredentials: true,
-        params: {
+      (this as any).$http
+        .get("/users/login", {
           userName: this.loginInfo.userName,
           password: this.loginInfo.passWord,
-        },
-      }).then((ifLogin: any) => {
-        if (ifLogin.data.status === 1) {
-          this.$message({
-            showClose: true,
-            message: "登录成功！快来定制你的旅游计划吧！",
-            type: "success",
-          });
-          this.$router.push("/home");
-        } else {
-          this.$message({
-            showClose: true,
-            message: "登录失败！用户不存在！",
-            type: "error",
-          });
-        }
-      });
+        })
+        .then((ifLogin: any) => {
+          if (ifLogin.status === 1) {
+            this.$message({
+              showClose: true,
+              message: "登录成功！快来定制你的旅游计划吧！",
+              type: "success",
+            });
+            this.$router.push("/home");
+          } else {
+            this.$message({
+              showClose: true,
+              message: "登录失败！用户不存在！",
+              type: "error",
+            });
+          }
+        });
     }
   }
 }
