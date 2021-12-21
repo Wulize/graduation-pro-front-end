@@ -72,7 +72,7 @@ export default class Login extends Vue {
           } else {
             this.$message({
               showClose: true,
-              message: "登录失败！用户不存在！",
+              message: "登录失败！请检查用户名密码！",
               type: "error",
             });
           }
