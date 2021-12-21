@@ -90,9 +90,6 @@ export default class Register extends Vue {
   // 邮箱格式验证
   public validateEmail(value: string) {
     const mailReg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
-    if (!value) {
-      return false;
-    }
     if (mailReg.test(value)) {
       return true;
     } else {
