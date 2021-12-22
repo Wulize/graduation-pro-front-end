@@ -1,8 +1,5 @@
 <template>
   <div class="login-wrapper">
-    <div class="login-pic">
-      <img src="@/assets/images/login/login01.jpg" />
-    </div>
     <div class="login-info">
       <el-form :model="loginInfo" :rules="rules">
         <el-form-item label="用户名" prop="userName">
@@ -72,7 +69,7 @@ export default class Login extends Vue {
           } else {
             this.$message({
               showClose: true,
-              message: "登录失败！用户不存在！",
+              message: "登录失败！请检查用户名密码！",
               type: "error",
             });
           }
@@ -86,20 +83,12 @@ export default class Login extends Vue {
 .login-wrapper {
   width: 100%;
   height: 100%;
-  position: relative;
+  background-image: url("../assets/images/login/login01.jpg");
+  background-size: cover;
+  // position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  .login-pic {
-    position: absolute;
-    left: 0;
-    top: 0;
-    img {
-      width: 100%;
-      height: 100%;
-      opacity: 0.7;
-    }
-  }
   .login-info {
     width: 30%;
     height: 60%;

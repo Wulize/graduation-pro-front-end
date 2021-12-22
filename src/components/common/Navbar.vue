@@ -12,9 +12,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from "vue-property-decorator";
 export default class Navbar extends Vue {
-  activeIndex = 1
+  activeIndex = 1;
 }
 </script>
 
@@ -22,6 +22,8 @@ export default class Navbar extends Vue {
 .nav-wrapper {
   display: flex;
   justify-content: center;
+  width: 600px;
+  height: 75px;
   .nav-menu {
     color: lightgray;
     background: none !important;
