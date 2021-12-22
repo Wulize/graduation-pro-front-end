@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home-wrapper">
     <el-button>aaa</el-button>
   </div>
 </template>
@@ -11,3 +11,9 @@ import { Component, Vue } from "vue-property-decorator";
 })
 export default class Home extends Vue {}
 </script>
+<style lang= "scss" scoped>
+.home-wrapper {
+  margin-top: 90px;
+  overflow-y: hidden;
+}
+</style>

@@ -2,7 +2,7 @@
   <div id="app">
     <div class="travel-wrapper">
       <div class="travel-nav">
-        <Navbar v-show="isShow"></Navbar>
+        <Navbar v-if="isShow"></Navbar>
       </div>
       <div class="travel-content">
         <router-view></router-view>
@@ -19,7 +19,7 @@ import Navbar from "./components/common/Navbar.vue";
   },
 })
 export default class App extends Vue {
-  public isShow = false;
+  public isShow = true;
 }
 </script>
 <style lang='scss'>
@@ -28,18 +28,20 @@ export default class App extends Vue {
   padding: 0;
 }
 .travel-wrapper {
-  width: 90vw;
-  height: 96vh; // 100vh会出现滚动条
-  margin-left: 5vw;
-  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  // overflow: hidden;
+
   .travel-nav {
-    height: 10%;
+    position: fixed;
+    left: calc(50% - 300px);
+    top: 0;
   }
   .travel-content {
-    height: 85%;
-    background: white;
-    margin-top: 4px;
-    box-shadow: 0 0 10px lightgray;
+    width: 100%;
+    height: 100%;
+    min-width: 1280px;
+    // margin-top: 90px;
   }
 }
 </style>
