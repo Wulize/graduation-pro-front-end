@@ -2,7 +2,7 @@
   <div id="app">
     <div class="travel-wrapper">
       <div class="travel-nav">
-        <Navbar v-if="isShow"></Navbar>
+        <Navbar v-if="$store.state.showNav"></Navbar>
       </div>
       <div class="travel-content">
         <router-view></router-view>
@@ -11,21 +11,23 @@
   </div>
 </template>
 <script lang='ts'>
-import { Component, Prop, Vue } from "vue-property-decorator";
-import Navbar from "./components/common/Navbar.vue";
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import Navbar from './components/common/Navbar.vue'
 @Component({
   components: {
     Navbar,
   },
 })
 export default class App extends Vue {
-  public isShow = true;
 }
 </script>
 <style lang='scss'>
-* {
+body {
   margin: 0;
   padding: 0;
+}
+iframe {
+  display: none;
 }
 .travel-wrapper {
   width: 100vw;
@@ -40,7 +42,7 @@ export default class App extends Vue {
   .travel-content {
     width: 100%;
     height: 100%;
-    min-width: 1280px;
+    min-width: 800px;
     // margin-top: 90px;
   }
 }

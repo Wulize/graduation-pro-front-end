@@ -7,7 +7,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import Http from '@/utils'
 
 Vue.config.productionTip = false
-Vue.prototype.$http = new Http();
+Vue.prototype.$http = new Http()
 Vue.use(ElementUI)
 new Vue({
   router,
