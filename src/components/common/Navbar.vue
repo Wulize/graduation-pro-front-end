@@ -1,20 +1,28 @@
 <template>
   <div class="nav-wrapper">
-    <el-menu default-active="1" mode="horizontal" class="nav-menu">
-      <el-menu-item index="1">Home</el-menu-item>
-      <el-menu-item index="2">Plan</el-menu-item>
-      <el-menu-item index="3">Sight</el-menu-item>
-      <el-menu-item index="4">Intercourse</el-menu-item>
-      <el-menu-item index="5">Journal</el-menu-item>
-      <el-menu-item index="6">Guide</el-menu-item>
+    <el-menu :default-active="activeIndex" mode="horizontal" class="nav-menu" @select="toSelectedRoute">
+      <el-menu-item index="/home">Home</el-menu-item>
+      <el-menu-item index="/plan">Plan</el-menu-item>
+      <el-menu-item index="/sight">Sight</el-menu-item>
+      <el-menu-item index="/intercourse">Intercourse</el-menu-item>
+      <el-menu-item index="/journal">Journal</el-menu-item>
+      <el-menu-item index="/guide">Guide</el-menu-item>
     </el-menu>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+@Component
 export default class Navbar extends Vue {
-  activeIndex = 1;
+  public activeIndex: string = this.$route.path
+  @Watch('$route')
+  handleWatch(newVal: any) {
+    this.activeIndex = newVal.path
+  }
+  public toSelectedRoute(index: string) {
+    this.$router.push(index)
+  }
 }
 </script>
 

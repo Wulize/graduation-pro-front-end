@@ -5,15 +5,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue } from 'vue-property-decorator'
 @Component({
   components: {},
 })
-export default class Home extends Vue {}
+export default class Home extends Vue {
+  mounted() {
+    this.$store.state.showNav = true
+  }
+}
 </script>
 <style lang= "scss" scoped>
 .home-wrapper {
-  margin-top: 90px;
-  overflow-y: hidden;
+  /* background: gray; */
 }
 </style>
