@@ -16,7 +16,7 @@ export default class Home extends Vue {
 }
 </script>
 <style lang= "scss" scoped>
-/* .home-wrapper {
-  background: gray;
-} */
+.home-wrapper {
+  /* background: gray; */
+}
 </style>
