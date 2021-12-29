@@ -50,9 +50,6 @@
         <div>1111111</div>
         <div>1111111</div>
         <div>1111111</div>
-        <div>1111111</div>
-        <div>1111111</div>
-        <div>1111111</div>
       </div>
       <div class="edit">
         <!-- 添加输入内容 -->
@@ -74,10 +71,11 @@
 import { Component, Vue } from "vue-property-decorator";
 @Component
 export default class Intercourse extends Vue {
-  public id: string = "tonny";
+  public id: string = this.$store.state.userName;
+  public value: string = "";
   public inputValue: string = "";
-  public path: string = "ws://192.168.1.2:3001/";
-  public socket: any;
+  public path: string = "ws://localhost:3001?id=";
+  public socket: any = {};
   public friends: string[] = [
     "lize",
     "yx",
@@ -113,16 +111,32 @@ export default class Intercourse extends Vue {
     },
   ];
   // 将输入的内容发送到服务器
-  public chat() {
-    this.send(this.inputValue);
+  public async chat() {
+    // 初始化
+    console.log(this.id);
+    const info: any = {
+      type: "chat",
+      send_time: new Date(),
+      user: {
+        send_msg: this.inputValue,
+        uid: "111",
+        uname: "lize",
+        uimg: null,
+      },
+      receiver: {
+        uid: "wulize",
+      },
+    };
+
+    this.send(JSON.stringify(info));
   }
   // 初始化websocket相关配置
-  public init() {
+  private init() {
     if (typeof WebSocket === "undefined") {
       alert("您的浏览器不支持socket");
     } else {
       // 实例化socket
-      this.socket = new WebSocket(this.path);
+      this.socket = new WebSocket(this.path + this.id);
       // 监听socket连接
       this.socket.onopen = () => {
         console.log("socket连接成功");
@@ -132,8 +146,10 @@ export default class Intercourse extends Vue {
         console.log("连接错误");
       };
       // 监听socket消息
-      this.socket.onmessage = (msg: any) => {
-        console.log(msg.data);
+      this.socket.onmessage = (res: any) => {
+        const data = JSON.parse(res.data);
+        console.log(res);
+        alert("您收到的消息是：" + data.msg);
       };
     }
   }
@@ -147,7 +163,7 @@ export default class Intercourse extends Vue {
     // 销毁监听
     this.socket.onclose = this.close;
   }
-  public beforeCreate() {
+  public created() {
     console.log("初始化");
     this.init();
   }
