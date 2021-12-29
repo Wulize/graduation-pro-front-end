@@ -3,7 +3,11 @@
     <div class="home-content">
       <div class="summary-images">
         <el-carousel :interval="3000" height="500px">
-          <el-carousel-item v-for="image in images" :key="image.index" class="carousel">
+          <el-carousel-item
+            v-for="image in images"
+            :key="image.index"
+            class="carousel"
+          >
             <img :src="image.source" />
           </el-carousel-item>
         </el-carousel>
@@ -12,7 +16,8 @@
         <div class="info-image"></div>
         <div class="info-words">
           <div class="words-title">站点信息</div>
-          <div class="words-content">本网站是基于LBS的旅游计划系统，在这里，用户可以根据自己的
+          <div class="words-content">
+            本网站是基于LBS的旅游计划系统，在这里，用户可以根据自己的
             需求制定相应的旅游计划，此外，用户还可以查看景点信息并加以批注、与旅行伙伴进行线上社交、
             记录旅行过程中的所见所感、以及跟随导游的步伐以获得不一样的旅游体验。
           </div>
@@ -63,43 +68,43 @@ export default class Home extends Vue {
   public images: any[] = [
     {
       index: 1,
-      source: require('@/assets/images/home/home02.jpg'),
+      source: require("@/assets/images/home/home02.jpg"),
     },
     {
       index: 2,
-      source: require('@/assets/images/home/home03.jpg'),
+      source: require("@/assets/images/home/home03.jpg"),
     },
     {
       index: 3,
-      source: require('@/assets/images/home/home04.jpg'),
+      source: require("@/assets/images/home/home04.jpg"),
     },
     {
       index: 4,
-      source: require('@/assets/images/home/home05.jpg'),
+      source: require("@/assets/images/home/home05.jpg"),
     },
     {
       index: 5,
-      source: require('@/assets/images/home/home06.jpg'),
+      source: require("@/assets/images/home/home06.jpg"),
     },
     {
       index: 6,
-      source: require('@/assets/images/home/home07.jpg'),
+      source: require("@/assets/images/home/home07.jpg"),
     },
     {
       index: 7,
-      source: require('@/assets/images/home/home08.jpg'),
+      source: require("@/assets/images/home/home08.jpg"),
     },
-  ]
+  ];
   mounted() {
     this.$store.state.showNav = true;
   }
 }
 </script>
-<style lang= "scss" scoped>
+<style lang= "scss">
 .home-wrapper {
   width: 100%;
   height: auto;
-  background-image: url('../assets/images/home/home01.jpg');
+  background-image: url("../assets/images/home/home01.jpg");
   background-size: cover;
   border-top: 1px solid lightblue;
   padding-bottom: 50px;
@@ -109,7 +114,7 @@ export default class Home extends Vue {
     margin-top: 90px;
     margin-left: 10%;
     .summary-images {
-      // 轮播图
+      /* 轮播图 */
       .carousel {
         img {
           width: 100%;
@@ -119,7 +124,7 @@ export default class Home extends Vue {
       }
     }
     .site-info {
-      // 站点信息
+      /* 站点信息 */
       width: 100%;
       margin-top: 50px;
       background: rgba($color: white, $alpha: 0.5);
@@ -127,13 +132,13 @@ export default class Home extends Vue {
       .info-image {
         width: 40%;
         height: 300px;
-        background-image: url('~@/assets/images/home/home09.jpg'); // 要像这样引入图片
+        background-image: url("~@/assets/images/home/home09.jpg"); /* 要像这样引入图片 */
         background-size: cover;
       }
       .info-words {
         width: 30%;
         height: 300px;
-        background-image: url('~@/assets/images/home/home10.jpg');
+        background-image: url("~@/assets/images/home/home10.jpg");
         background-size: cover;
         margin-left: 15%;
         display: flex;
@@ -153,23 +158,23 @@ export default class Home extends Vue {
       }
     }
     .siter-info {
-      // 站长信息
+      /* 站长信息 */
       width: 100%;
       margin-top: 50px;
-      height: auto; // 父元素设置了auto,直接子元素都得设置auto
+      height: auto; /* 父元素设置了auto,直接子元素都得设置auto */
       display: flex;
       justify-content: space-between;
       background: rgba($color: white, $alpha: 0.5);
       .info-image {
         width: 30%;
         height: 300px;
-        background-image: url('~@/assets/images/home/home11.jpg'); // 要像这样引入图片
+        background-image: url("~@/assets/images/home/home11.jpg"); /* 要像这样引入图片 */
         background-size: cover;
       }
       .siter-one {
         width: 30%;
         height: 300px;
-        background-image: url('~@/assets/images/home/home10.jpg');
+        background-image: url("~@/assets/images/home/home10.jpg");
         background-size: cover;
         display: flex;
         flex-direction: column;
@@ -204,7 +209,7 @@ export default class Home extends Vue {
       .siter-two {
         width: 30%;
         height: 300px;
-        background-image: url('~@/assets/images/home/home10.jpg');
+        background-image: url("~@/assets/images/home/home10.jpg");
         background-size: cover;
         display: flex;
         flex-direction: column;

@@ -11,8 +11,8 @@
   </div>
 </template>
 <script lang='ts'>
-import { Component, Prop, Vue } from 'vue-property-decorator'
-import Navbar from './components/common/Navbar.vue'
+import { Component, Prop, Vue } from "vue-property-decorator";
+import Navbar from "./components/common/Navbar.vue";
 @Component({
   components: {
     Navbar,
@@ -31,18 +31,16 @@ iframe {
 .travel-wrapper {
   width: 100vw;
   height: 100vh;
-  // overflow: hidden;
-
   .travel-nav {
     position: fixed;
     left: calc(50% - 300px);
     top: 0;
+    z-index: 999;
   }
   .travel-content {
     width: 100%;
     height: 100%;
     min-width: 800px;
-    // margin-top: 90px;
   }
 }
 </style>
