@@ -67,6 +67,7 @@ export default class Login extends Vue {
             });
             this.$store.state.userName = this.loginInfo.userName;
             this.$router.push("/home");
+            sessionStorage.setItem("userName", this.loginInfo.userName);
           } else {
             this.$message({
               showClose: true,
@@ -76,7 +77,6 @@ export default class Login extends Vue {
           }
         });
     }
-    this.$router.push("/home");
   }
   mounted() {
     this.$store.state.showNav = false;
