@@ -29,8 +29,8 @@ iframe {
   display: none;
 }
 .travel-wrapper {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   .travel-nav {
     position: fixed;
     left: calc(50% - 300px);
