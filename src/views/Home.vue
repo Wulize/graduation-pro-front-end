@@ -100,14 +100,14 @@ export default class Home extends Vue {
   }
 }
 </script>
-<style lang= "scss">
+<style lang="scss">
 .home-wrapper {
   width: 100%;
   height: auto;
   background-image: url("../assets/images/home/home01.jpg");
-  background-size: cover;
+  background-size: 100%;
   border-top: 1px solid lightblue;
-  padding-bottom: 50px;
+  padding-bottom: 10px;
   .home-content {
     width: 80%;
     height: auto;

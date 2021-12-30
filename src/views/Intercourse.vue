@@ -21,12 +21,14 @@
         :key="i"
         @click="chooseReciever($event)"
       >
-        <el-avatar>{{ item }}</el-avatar>
+        <el-avatar :src="avatarUrl"></el-avatar>
         <p>{{ item }}</p>
       </div>
     </div>
     <div class="content">
-      <div class="nickName">{{ id }}</div>
+      <div class="nickName">
+        <p>{{ id }}</p>
+      </div>
       <div class="mainContent">
         <div class="msg" v-for="(item, key) in msgList" :key="key">
           <p>
@@ -84,6 +86,7 @@ export default class Intercourse extends Vue {
       label: "北京烤鸭",
     },
   ];
+  public avatarUrl: string = require("@/assets/images/chat/avatar.svg");
   public msgList: any[] = [];
   public msgListObj: any = {};
   @Watch("msgListObj", { deep: true })
@@ -94,6 +97,14 @@ export default class Intercourse extends Vue {
   // 将输入的内容发送到服务器
   public async chat() {
     // 初始化
+    if (this.inputValue === "") {
+      this.$message({
+        showClose: true,
+        message: "不可发送空消息！",
+        type: "warning",
+      });
+      return;
+    }
     const userName = sessionStorage.getItem("userName");
     const info: any = {
       type: "chat",
@@ -161,8 +172,9 @@ export default class Intercourse extends Vue {
    * chooseReciever
    */
   public chooseReciever(event: any) {
-    const target = event.target || {};
-    this.id = target.innerText;
+    const target = event.currentTarget || {};
+    console.log(target.innerText);
+    this.id = target.innerText.split("/n")[0];
     this.msgList = this.msgListObj[this.id];
   }
   public beforeDestroy() {
@@ -196,7 +208,7 @@ export default class Intercourse extends Vue {
   .myFriends {
     width: 25%;
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
     background: rgb(255, 255, 255);
     border-right: 2px solid rgb(206, 202, 202);
     .choice {
@@ -226,23 +238,25 @@ export default class Intercourse extends Vue {
       height: 50px;
       border-bottom: 1px solid rgb(190, 190, 190);
       background: rgb(241, 240, 240);
-      position: absolute;
+      position: relative;
+      p {
+        margin: 0 0 0 3%;
+        padding-top: 1%;
+      }
     }
     .mainContent {
       width: 100%;
-      height: calc(95% - 165px);
-      margin-top: 6%;
-      overflow-y: scroll;
+      height: calc(100% - 165px);
+      overflow-y: auto;
     }
     .edit {
       height: 115px;
-      width: 97%;
+      width: 100%;
       background: rgb(238, 238, 238);
       position: absolute;
       bottom: 0;
-      padding: 10px;
       input {
-        width: 97%;
+        width: 99%;
         height: 45px;
         outline: none;
         font-size: 20px;
@@ -260,7 +274,8 @@ export default class Intercourse extends Vue {
         cursor: pointer;
         text-align: center;
         position: absolute;
-        right: 10px;
+        right: 2px;
+        top: 1px;
         border-radius: 6px;
       }
       span:hover {
