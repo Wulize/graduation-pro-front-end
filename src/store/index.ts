@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    showNav: true,
+    showNav: false,
     userName: ''
   },
   mutations: {},

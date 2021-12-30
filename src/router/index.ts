@@ -67,5 +67,19 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 })
-
+// 路由守卫，next()表示跳转，next('/login')表示跳到login路由的判断条件
+router.beforeEach((to, from, next) => {
+  // 不是登录的话判断有没有权限，这里用sessionStorage的用户名作为表示
+  // 登录之后都会有这个用户名，如果没有就跳到登录
+  // 登录首先会判断cookie是否存在，存在的话直接跳到home，并且设置sessionStorage的用户名
+  if (to.path !== "/login") {
+    if (sessionStorage.getItem("userName")) {
+      return next()
+    } else {
+      return next('/login')
+    }
+  } else {
+    return next()
+  }
+})
 export default router
