@@ -6,7 +6,9 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     showNav: false,
-    userName: ''
+    userName: '',
+    unreadMsg: 0,
+    isConnect: false
   },
   mutations: {},
   actions: {},

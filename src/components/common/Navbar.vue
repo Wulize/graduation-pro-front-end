@@ -1,27 +1,37 @@
 <template>
   <div class="nav-wrapper">
-    <el-menu :default-active="activeIndex" mode="horizontal" class="nav-menu" @select="toSelectedRoute">
-      <el-menu-item index="/home">Home</el-menu-item>
-      <el-menu-item index="/plan">Plan</el-menu-item>
-      <el-menu-item index="/sight">Sight</el-menu-item>
-      <el-menu-item index="/intercourse">Intercourse</el-menu-item>
-      <el-menu-item index="/journal">Journal</el-menu-item>
-      <el-menu-item index="/guide">Guide</el-menu-item>
+    <el-menu
+      :default-active="activeIndex"
+      mode="horizontal"
+      class="nav-menu"
+      @select="toSelectedRoute"
+    >
+      <el-menu-item index="/home">首页</el-menu-item>
+      <el-menu-item index="/plan">计划</el-menu-item>
+      <el-menu-item index="/sight">景点</el-menu-item>
+      <el-menu-item index="/intercourse">交友</el-menu-item>
+      <el-menu-item index="/journal">游记</el-menu-item>
+      <el-menu-item index="/guide">导游</el-menu-item>
     </el-menu>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 @Component
 export default class Navbar extends Vue {
-  public activeIndex: string = this.$route.path
-  @Watch('$route')
+  public activeIndex: string = this.$route.path;
+  @Watch("$route")
   handleWatch(newVal: any) {
-    this.activeIndex = newVal.path
+    this.activeIndex = newVal.path;
+    if (newVal.path === "/intercourse") {
+      this.$store.state.showNav = false;
+    } else {
+      this.$store.state.showNav = true;
+    }
   }
   public toSelectedRoute(index: string) {
-    this.$router.push(index)
+    this.$router.push(index);
   }
 }
 </script>

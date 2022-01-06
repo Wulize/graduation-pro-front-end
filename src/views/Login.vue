@@ -110,7 +110,7 @@ export default class Login extends Vue {
   height: 100vh;
   background-image: url("../assets/images/login/login01.jpg");
   background-size: cover;
-  // position: relative;
+  position: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -121,7 +121,6 @@ export default class Login extends Vue {
     min-height: 250px;
     position: relative;
     background: white;
-    // border: 2px solid black;
     display: flex;
     flex-direction: column;
     justify-content: center;
