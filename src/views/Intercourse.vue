@@ -5,6 +5,7 @@
         class="choice"
         v-model="value"
         filterable
+        @change="findfriend"
         placeholder="查找好友"
       >
         <el-option
@@ -17,15 +18,19 @@
       </el-select>
       <div
         class="item"
-        :class="{ active: isActive[i] }"
         v-for="(item, i) in friends"
+        :class="{ active: isActive[i] }"
         :key="i"
-        @click="chooseReciever($event, i)"
+        @click="chooseReciever(i)"
       >
         <el-avatar :src="avatarUrl"></el-avatar>
         <p>{{ item }}</p>
         <div class="infoNum" v-if="unreadMsg[item] > 0">
           {{ unreadMsg[item] }}
+        </div>
+        <div class="isOnline">
+          <span v-if="onlineFriend.includes(item)">在线</span>
+          <span v-else>离线</span>
         </div>
       </div>
     </div>
@@ -72,28 +77,9 @@ export default class Intercourse extends Vue {
   public socket: any = {};
   // 好友列表
   public friends: string[] = ["请先添加好友"];
-  public options: any[] = [
-    {
-      value: "选项1",
-      label: "黄金糕",
-    },
-    {
-      value: "选项2",
-      label: "双皮奶",
-    },
-    {
-      value: "选项3",
-      label: "蚵仔煎",
-    },
-    {
-      value: "选项4",
-      label: "龙须面",
-    },
-    {
-      value: "选项5",
-      label: "北京烤鸭",
-    },
-  ];
+  // 在线好友
+  public onlineFriend: string[] = [];
+  public options: any[] = [];
   public avatarUrl: string = require("@/assets/images/chat/avatar.svg");
   // 当前好友的聊天记录
   public msgList: any[] = [];
@@ -136,6 +122,14 @@ export default class Intercourse extends Vue {
       send_name: userName,
       receiver: this.id,
     };
+    // 发送后跳到第一个记录
+    this.friends.unshift(
+      ...this.friends.splice(this.friends.indexOf(this.id), 1)
+    );
+    // 发送信息后，对应的聊天跳到第一个记录，样式也相应改变
+    this.isActive.forEach((item: boolean, index: number) => {
+      this.isActive[index] = index === 0 ? true : false;
+    });
     this.inputValue = "";
     this.msgListObj[this.id].push(info);
     this.send(JSON.stringify(info));
@@ -161,14 +155,27 @@ export default class Intercourse extends Vue {
       // 监听socket消息
       this.socket.onmessage = (res: any) => {
         const data = JSON.parse(res.data);
-        if (this.msgListObj[data.send_id] === undefined) {
-          this.msgListObj[data.send_id] = [];
-        }
-        this.msgListObj[data.send_id].push(data);
-        this.$store.state.unreadMsg++;
-        this.unreadMsg[data.send_id]++;
-        if (this.id === data.send_id) {
-          this.unreadMsg[data.send_id] = 0;
+        if (data.type === "isOnline") {
+          this.onlineFriend = data.onlineFriend;
+        } else {
+          if (this.msgListObj[data.send_id] === undefined) {
+            this.msgListObj[data.send_id] = [];
+          }
+          this.msgListObj[data.send_id].push(data);
+          this.$store.state.unreadMsg++;
+          this.unreadMsg[data.send_id]++;
+          if (this.id === data.send_id) {
+            this.unreadMsg[data.send_id] = 0;
+          }
+          // 接收消息后跳到第一个记录
+          this.friends.unshift(
+            ...this.friends.splice(this.friends.indexOf(data.send_id), 1)
+          );
+          // 接受信息后，对应的聊天跳到第一个记录，样式需要满足当前id
+          this.isActive.forEach((item: boolean, index: number) => {
+            this.isActive[index] =
+              this.friends[index] === this.id ? true : false;
+          });
         }
       };
     }
@@ -180,9 +187,9 @@ export default class Intercourse extends Vue {
     console.log("socket已经关闭");
   }
   // 查找好友列表
-  public getFriendList() {
+  public getFriendList(callBack: () => void) {
     const userName = sessionStorage.getItem("userName");
-    let isFirst: boolean = true;
+    // let isFirst: boolean = true;
     (this as any).$http
       .get("/chat/getFriendList", {
         userName,
@@ -190,23 +197,25 @@ export default class Intercourse extends Vue {
       .then((res: any) => {
         this.friends = res.friendList;
         this.id = this.friends[0];
-        // 如果msgListObj是空对象的话就进行初始化，如果不是则从sessionStorage中获取
-        if (Object.keys(this.msgListObj).length === 0) {
-          isFirst = true;
-        } else isFirst = false;
         for (const item of this.friends) {
-          if (isFirst) this.$set(this.msgListObj, item, []);
+          // 这里是防止出现新的好友时，聊天记录没地儿保存，所以如果好友记录不存在，就把他设置成【】
+          if (!this.msgListObj[item]) this.$set(this.msgListObj, item, []);
           // 标记未读消息的对象 键：好友 值：全部初始化为0
           this.$set(this.unreadMsg, item, 0);
+          this.options.push({
+            value: item,
+            label: item,
+          });
         }
         this.msgList = this.msgListObj[this.id];
+        callBack();
       });
   }
   /**
    * 设置好友列表的点击事件
    * chooseReciever
    */
-  public chooseReciever(event: any, i: number) {
+  public chooseReciever(i: number) {
     this.id = this.friends[i];
     this.msgList = this.msgListObj[this.id];
     this.unreadMsg[this.id] = 0;
@@ -219,13 +228,13 @@ export default class Intercourse extends Vue {
     // 销毁监听,实际操作中页面刷新时不会触发这个事件
     this.socket.onclose = this.close;
   }
-  public async mounted() {
-    const data = sessionStorage.getItem("msgListObj");
+  public async created() {
+    const data = localStorage.getItem("msgListObj");
     const that = this;
     // 添加路由跳转事件、刷新事件，如果刷新，就将聊天记录存在sessionStorage中,由于只能存储键值对，需要将其序列化一下
     ["beforeunload"].forEach((item, index) => {
       window.addEventListener(item, () => {
-        sessionStorage.setItem("msgListObj", JSON.stringify(that.msgListObj));
+        localStorage.setItem("msgListObj", JSON.stringify(that.msgListObj));
         that.scrollToBottom();
       });
     });
@@ -233,8 +242,10 @@ export default class Intercourse extends Vue {
     if (data !== null) {
       this.msgListObj = JSON.parse(data);
     }
-    await this.getFriendList();
-    this.init();
+    // 出错原因是this.getgetFriendList没执行完，就执行了init，导致一些变量还没有初始化好
+    // await this.getFriendList();
+    // await this.init();
+    this.getFriendList(this.init);
   }
   private scrollToBottom() {
     setTimeout(() => {
@@ -243,6 +254,13 @@ export default class Intercourse extends Vue {
       // @ts-ignore
       container.scrollTop = container.scrollHeight;
     }, 30);
+  }
+  // 好友聊天查找框的change事件
+  public findfriend(name: string) {
+    const index = this.friends.indexOf(name);
+    console.log(name);
+
+    this.chooseReciever(index);
   }
 }
 </script>
@@ -291,6 +309,15 @@ export default class Intercourse extends Vue {
         color: #fff;
         text-align: center;
         border-radius: 50%;
+      }
+      .isOnline {
+        position: absolute;
+        right: 1px;
+        bottom: 6px;
+        width: 30px;
+        height: 10px;
+        line-height: 10px;
+        font-size: 10px;
       }
     }
   }

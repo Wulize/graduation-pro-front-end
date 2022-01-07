@@ -51,14 +51,16 @@ export default class App extends Vue {
     if (newVal.path === "/intercourse") {
       this.$store.state.showNav = false;
       this.ifIntercourse = true;
-      // 修改消息数量，这里有问题
       this.$store.state.unreadMsg = 0;
-      this.msgNum = 0;
     } else {
       this.$store.state.showNav = true;
       this.$store.state.unreadMsg = 0;
       this.ifIntercourse = false;
     }
+    // 会出问题不？
+    if (newVal.path === "/login" || newVal.path === "/register") {
+      this.login = false;
+    } else this.login = true;
   }
   public hangdleClick(index: string) {
     this.$router.push(index);
@@ -74,9 +76,6 @@ export default class App extends Vue {
           this.$store.state.unreadMsg = res.MsgNum;
         });
     }, 4000);
-    if (sessionStorage.getItem("userName")) {
-      this.login = true;
-    } else this.login = false;
   }
 }
 </script>
