@@ -1,6 +1,20 @@
 <template>
   <div class="chat-wrapper">
     <div class="myFriends">
+      <div class="userInfo">
+        <div class="userName">
+          <el-avatar :src="avatarUrl[1]" title="编辑个人信息"></el-avatar>
+          <p>{{ userName }}</p>
+        </div>
+        <div class="addSign" @click="addFriend">
+          <el-avatar
+            :src="avatarUrl[2]"
+            id="addSign"
+            shape="square"
+            title="点击添加好友"
+          ></el-avatar>
+        </div>
+      </div>
       <el-select
         class="choice"
         v-model="value"
@@ -23,7 +37,7 @@
         :key="i"
         @click="chooseReciever(i)"
       >
-        <el-avatar :src="avatarUrl"></el-avatar>
+        <el-avatar :src="avatarUrl[0]"></el-avatar>
         <p>{{ item }}</p>
         <div class="infoNum" v-if="unreadMsg[item] > 0">
           {{ unreadMsg[item] }}
@@ -60,13 +74,24 @@
         <span id="btn" @click="chat">发送</span>
       </div>
     </div>
+    <addfriend
+      :isShow="isShow"
+      @cancle="handleCancle"
+      @confirm="handleConfirm"
+    ></addfriend>
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Vue, Watch } from "vue-property-decorator";
-@Component
+import addfriend from "../components/Intercourse/addfriend.vue";
+@Component({
+  components: { addfriend },
+})
 export default class Intercourse extends Vue {
+  // 添加好友弹窗
+  public isShow: boolean = false;
+  public userName: string = "";
   // 接收者
   public id: string = "";
   // 搜索框的内容
@@ -80,7 +105,11 @@ export default class Intercourse extends Vue {
   // 在线好友
   public onlineFriend: string[] = [];
   public options: any[] = [];
-  public avatarUrl: string = require("@/assets/images/chat/avatar.svg");
+  public avatarUrl: string[] = [
+    `${require("@/assets/images/chat/avatar.svg")}`,
+    `${require("@/assets/images/chat/cat.svg")}`,
+    `${require("@/assets/images/chat/add.svg")}`,
+  ];
   // 当前好友的聊天记录
   public msgList: any[] = [];
   // 本次会话中所有好友的聊天记录
@@ -105,7 +134,14 @@ export default class Intercourse extends Vue {
   // 将输入的内容发送到服务器
   public async chat() {
     // 初始化
-    if (this.inputValue === "") {
+    if (this.id === "请先添加好友") {
+      this.$message({
+        showClose: true,
+        message: "找个好友聊天去吧，单身狗！",
+        type: "warning",
+      });
+      return;
+    } else if (this.inputValue === "") {
       this.$message({
         showClose: true,
         message: "不可发送空消息！",
@@ -113,13 +149,12 @@ export default class Intercourse extends Vue {
       });
       return;
     }
-    const userName = sessionStorage.getItem("userName");
     const info: any = {
       type: "chat",
       send_time: new Date(),
       send_msg: this.inputValue,
-      send_id: userName,
-      send_name: userName,
+      send_id: this.userName,
+      send_name: this.userName,
       receiver: this.id,
     };
     // 发送后跳到第一个记录
@@ -141,8 +176,7 @@ export default class Intercourse extends Vue {
     } else {
       // 实例化socket
       // 首先获取用户名
-      const userName = sessionStorage.getItem("userName");
-      this.socket = new WebSocket(this.path + userName);
+      this.socket = new WebSocket(this.path + this.userName);
       // 监听socket连接
       this.socket.onopen = () => {
         console.log("socket连接成功");
@@ -155,9 +189,12 @@ export default class Intercourse extends Vue {
       // 监听socket消息
       this.socket.onmessage = (res: any) => {
         const data = JSON.parse(res.data);
+        // 好友在线信息
         if (data.type === "isOnline") {
           this.onlineFriend = data.onlineFriend;
-        } else {
+        }
+        // 聊天信息
+        else if (data.type === "chat") {
           if (this.msgListObj[data.send_id] === undefined) {
             this.msgListObj[data.send_id] = [];
           }
@@ -176,6 +213,57 @@ export default class Intercourse extends Vue {
             this.isActive[index] =
               this.friends[index] === this.id ? true : false;
           });
+        }
+        // 新增好友信息
+        else if (data.type === "add" && data.send_name !== "机器人代发") {
+          this.$confirm(
+            `是否添加${data.send_name}为好友?
+          备注信息：${data.send_msg}`,
+            "提示",
+            {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning",
+            }
+          )
+            .then(() => {
+              (this as any).$http
+                .get("/chat/addFriend", {
+                  userName: this.userName,
+                  friend: data.send_name,
+                })
+                .then((response: any) => {
+                  if (response.code) {
+                    if (this.friends.indexOf(data.send_name) === -1) {
+                      this.friends.unshift(data.send_name);
+                      this.$set(this.msgListObj, data.send_name, []);
+                      const index = this.friends.indexOf(this.id);
+                      this.chooseReciever(index);
+                    }
+                    this.$message({
+                      type: "success",
+                      message: "添加成功",
+                    });
+                  } else {
+                    throw new Error("添加好友失败");
+                  }
+                });
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已拒绝",
+              });
+            });
+        }
+        // 对方统一添加之后更新好友列表
+        else if (data.type === "renewList") {
+          if (this.friends.indexOf(data.newFriend) === -1) {
+            this.friends.unshift(data.newFriend);
+            this.$set(this.msgListObj, data.newFriend, []);
+            const index = this.friends.indexOf(this.id);
+            this.chooseReciever(index);
+          }
         }
       };
     }
@@ -229,6 +317,7 @@ export default class Intercourse extends Vue {
     this.socket.onclose = this.close;
   }
   public async created() {
+    this.userName = sessionStorage.getItem("userName") || "";
     const data = localStorage.getItem("msgListObj");
     const that = this;
     // 添加路由跳转事件、刷新事件，如果刷新，就将聊天记录存在sessionStorage中,由于只能存储键值对，需要将其序列化一下
@@ -258,9 +347,24 @@ export default class Intercourse extends Vue {
   // 好友聊天查找框的change事件
   public findfriend(name: string) {
     const index = this.friends.indexOf(name);
-    console.log(name);
-
     this.chooseReciever(index);
+    this.value = "";
+  }
+  // 添加好友
+  public addFriend() {
+    this.isShow = true;
+  }
+  // 添加好友取消事件
+  public handleCancle() {
+    this.isShow = false;
+  }
+  // 确认添加好友
+  public handleConfirm(info: any) {
+    this.isShow = false;
+    info.send_id = this.userName;
+    info.send_time = new Date();
+    info.send_name = this.userName;
+    this.send(JSON.stringify(info));
   }
 }
 </script>
@@ -269,6 +373,7 @@ export default class Intercourse extends Vue {
 .chat-wrapper {
   width: 100%;
   height: 100vh;
+  overflow-y: hidden;
   display: flex;
   flex-direction: row;
   .myFriends {
@@ -277,8 +382,36 @@ export default class Intercourse extends Vue {
     overflow-y: auto;
     background: rgb(255, 255, 255);
     border-right: 2px solid rgb(206, 202, 202);
+    .userInfo {
+      position: relative;
+      display: flex;
+      width: 100%;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      .userName {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        p {
+          margin: 0 0 0 10px;
+          line-height: 50px;
+        }
+      }
+      #addSign {
+        height: 30px;
+        width: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        right: 2px;
+        bottom: 50%;
+        transform: translateY(50%);
+      }
+    }
     .choice {
-      height: 10vh;
+      height: 6vh;
       width: 100%;
     }
     .active {
@@ -333,13 +466,17 @@ export default class Intercourse extends Vue {
       position: relative;
       p {
         margin: 0 0 0 3%;
-        padding-top: 1%;
+        line-height: 50px;
+        font-size: 20px;
       }
     }
     .mainContent {
       width: 100%;
       height: calc(100% - 165px);
       overflow-y: auto;
+      .msg {
+        margin-left: 1%;
+      }
     }
     .edit {
       height: 115px;
@@ -348,7 +485,7 @@ export default class Intercourse extends Vue {
       position: absolute;
       bottom: 0;
       input {
-        width: 99%;
+        width: 99.2%;
         height: 45px;
         outline: none;
         font-size: 20px;

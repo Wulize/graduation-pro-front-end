@@ -98,7 +98,7 @@ iframe {
   }
   .returnHome {
     position: fixed;
-    z-index: 100;
+    z-index: 1;
     top: 10px;
     right: 2%;
   }
