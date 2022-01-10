@@ -37,7 +37,7 @@
       </div>
       <div class="buttons">
         <el-button @click="cancle">取消</el-button>
-        <el-button @click="confirm">确定</el-button>
+        <el-button @click="confirm" type="primary">确定</el-button>
       </div>
     </div>
   </div>
@@ -86,6 +86,10 @@ export default class AddFriend extends Vue {
     this.$emit("cancle");
   }
   public confirm() {
+    if (!this.value) {
+      alert("请选择一名用户");
+      return;
+    }
     this.$emit("confirm", {
       receiver: this.value,
       send_msg: this.textarea,

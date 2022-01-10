@@ -2,8 +2,8 @@
   <div class="chat-wrapper">
     <div class="myFriends">
       <div class="userInfo">
-        <div class="userName">
-          <el-avatar :src="avatarUrl[1]" title="编辑个人信息"></el-avatar>
+        <div class="userName" @click="openEditInfo">
+          <el-avatar :src="myAvatarUrl" title="编辑个人信息"></el-avatar>
           <p>{{ userName }}</p>
         </div>
         <div class="addSign" @click="addFriend">
@@ -37,13 +37,13 @@
         :key="i"
         @click="chooseReciever(i)"
       >
-        <el-avatar :src="avatarUrl[0]"></el-avatar>
-        <p>{{ item }}</p>
-        <div class="infoNum" v-if="unreadMsg[item] > 0">
-          {{ unreadMsg[item] }}
+        <el-avatar :src="item.avatarUrl || avatarUrl[0]"></el-avatar>
+        <p>{{ item.friendName }}</p>
+        <div class="infoNum" v-if="unreadMsg[item.friendName] > 0">
+          {{ unreadMsg[item.friendName] }}
         </div>
         <div class="isOnline">
-          <span v-if="onlineFriend.includes(item)">在线</span>
+          <span v-if="onlineFriend.includes(item.friendName)">在线</span>
           <span v-else>离线</span>
         </div>
       </div>
@@ -79,18 +79,26 @@
       @cancle="handleCancle"
       @confirm="handleConfirm"
     ></addfriend>
+    <editMyInfo :isShow="editInfoShow" @close="closeEditInfo"></editMyInfo>
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Vue, Watch } from "vue-property-decorator";
 import addfriend from "../components/Intercourse/addfriend.vue";
+import editMyInfo from "../components/Intercourse/personalInfo.vue";
 @Component({
-  components: { addfriend },
+  components: { addfriend, editMyInfo },
 })
 export default class Intercourse extends Vue {
+  // 个人头像地址
+  public myAvatarUrl: string =
+    sessionStorage.getItem("avatarUrl") ||
+    `${require("@/assets/images/chat/cat.svg")}`;
   // 添加好友弹窗
   public isShow: boolean = false;
+  // 编辑个人信息弹窗
+  public editInfoShow: boolean = false;
   public userName: string = "";
   // 接收者
   public id: string = "";
@@ -101,7 +109,7 @@ export default class Intercourse extends Vue {
   public path: string = "ws://localhost:3001?id=";
   public socket: any = {};
   // 好友列表
-  public friends: string[] = ["请先添加好友"];
+  public friends: any[] = [{ friendName: "请先添加好友", avatarUrl: "" }];
   // 在线好友
   public onlineFriend: string[] = [];
   public options: any[] = [];
@@ -158,12 +166,11 @@ export default class Intercourse extends Vue {
       receiver: this.id,
     };
     // 发送后跳到第一个记录
-    this.friends.unshift(
-      ...this.friends.splice(this.friends.indexOf(this.id), 1)
-    );
+    const index = this.friends.findIndex((item) => item.firendName === this.id);
+    this.friends.unshift(...this.friends.splice(index, 1));
     // 发送信息后，对应的聊天跳到第一个记录，样式也相应改变
-    this.isActive.forEach((item: boolean, index: number) => {
-      this.isActive[index] = index === 0 ? true : false;
+    this.isActive.forEach((item: boolean, ind: number) => {
+      this.isActive[index] = ind === 0 ? true : false;
     });
     this.inputValue = "";
     this.msgListObj[this.id].push(info);
@@ -205,14 +212,15 @@ export default class Intercourse extends Vue {
             this.unreadMsg[data.send_id] = 0;
           }
           // 接收消息后跳到第一个记录
-          this.friends.unshift(
-            ...this.friends.splice(this.friends.indexOf(data.send_id), 1)
+          const index = this.friends.findIndex(
+            (item) => item.friendName === data.send_id
           );
+          this.friends.unshift(...this.friends.splice(index, 1));
           // 接受信息后，对应的聊天跳到第一个记录，样式需要满足当前id
-          this.isActive.forEach((item: boolean, index: number) => {
-            this.isActive[index] =
-              this.friends[index] === this.id ? true : false;
-          });
+          for (let key = 0; key < this.friends.length; key++) {
+            this.isActive[key] =
+              this.id === this.friends[key].friendName ? true : false;
+          }
         }
         // 新增好友信息
         else if (data.type === "add" && data.send_name !== "机器人代发") {
@@ -234,10 +242,17 @@ export default class Intercourse extends Vue {
                 })
                 .then((response: any) => {
                   if (response.code) {
-                    if (this.friends.indexOf(data.send_name) === -1) {
-                      this.friends.unshift(data.send_name);
+                    let index = this.friends.findIndex(
+                      (item) => item.friendName === data.send_name
+                    );
+                    if (index === -1) {
+                      this.friends.unshift({ friendName: data.send_name });
+                      if (response.online)
+                        this.onlineFriend.push(data.send_name);
                       this.$set(this.msgListObj, data.send_name, []);
-                      const index = this.friends.indexOf(this.id);
+                      index = this.friends.findIndex(
+                        (item) => item.friendName === data.send_name
+                      );
                       this.chooseReciever(index);
                     }
                     this.$message({
@@ -258,10 +273,16 @@ export default class Intercourse extends Vue {
         }
         // 对方统一添加之后更新好友列表
         else if (data.type === "renewList") {
-          if (this.friends.indexOf(data.newFriend) === -1) {
+          let index = this.friends.findIndex(
+            (item) => item.friendName === data.send_name
+          );
+          if (index === -1) {
             this.friends.unshift(data.newFriend);
-            this.$set(this.msgListObj, data.newFriend, []);
-            const index = this.friends.indexOf(this.id);
+            this.onlineFriend.push(data.newFriend.friendName);
+            this.$set(this.msgListObj, data.newFriend.friendName, []);
+            index = this.friends.findIndex(
+              (item) => item.friendName === data.send_name
+            );
             this.chooseReciever(index);
           }
         }
@@ -284,15 +305,16 @@ export default class Intercourse extends Vue {
       })
       .then((res: any) => {
         this.friends = res.friendList;
-        this.id = this.friends[0];
+        this.id = this.friends[0].friendName;
         for (const item of this.friends) {
           // 这里是防止出现新的好友时，聊天记录没地儿保存，所以如果好友记录不存在，就把他设置成【】
-          if (!this.msgListObj[item]) this.$set(this.msgListObj, item, []);
+          if (!this.msgListObj[item.friendName])
+            this.$set(this.msgListObj, item.friendName, []);
           // 标记未读消息的对象 键：好友 值：全部初始化为0
-          this.$set(this.unreadMsg, item, 0);
+          this.$set(this.unreadMsg, item.friendName, 0);
           this.options.push({
-            value: item,
-            label: item,
+            value: item.friendName,
+            label: item.friendName,
           });
         }
         this.msgList = this.msgListObj[this.id];
@@ -304,7 +326,7 @@ export default class Intercourse extends Vue {
    * chooseReciever
    */
   public chooseReciever(i: number) {
-    this.id = this.friends[i];
+    this.id = this.friends[i].friendName;
     this.msgList = this.msgListObj[this.id];
     this.unreadMsg[this.id] = 0;
     for (let key = 0; key < this.friends.length; key++) {
@@ -346,7 +368,7 @@ export default class Intercourse extends Vue {
   }
   // 好友聊天查找框的change事件
   public findfriend(name: string) {
-    const index = this.friends.indexOf(name);
+    const index = this.friends.findIndex((item) => item.friendName === name);
     this.chooseReciever(index);
     this.value = "";
   }
@@ -365,6 +387,17 @@ export default class Intercourse extends Vue {
     info.send_time = new Date();
     info.send_name = this.userName;
     this.send(JSON.stringify(info));
+  }
+  // 关闭编辑信息弹窗
+  public closeEditInfo() {
+    console.log("组件关闭");
+    this.editInfoShow = false;
+  }
+  // 打开编辑信息弹窗
+  public openEditInfo() {
+    console.log("组件打开");
+    this.editInfoShow = true;
+    console.log(this.editInfoShow);
   }
 }
 </script>

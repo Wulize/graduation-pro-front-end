@@ -66,6 +66,9 @@ export default class Login extends Vue {
               type: "success",
             });
             this.$store.state.userName = this.loginInfo.userName;
+            const avatarUrl = this.loginInfo.avatarUrl || "";
+            sessionStorage.setItem("userName", ifLogin.userName);
+            sessionStorage.setItem("avatarUrl", avatarUrl);
             sessionStorage.setItem("userName", this.loginInfo.userName);
             this.$router.push("/home");
           } else {
@@ -90,7 +93,9 @@ export default class Login extends Vue {
           type: "success",
         });
         this.$store.state.userName = ifLogin.userName;
+        const avatarUrl = ifLogin.avatarUrl || "";
         sessionStorage.setItem("userName", ifLogin.userName);
+        sessionStorage.setItem("avatarUrl", avatarUrl);
         this.$router.push("/home");
       } else {
         this.$message({
