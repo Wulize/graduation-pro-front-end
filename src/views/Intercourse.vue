@@ -53,12 +53,29 @@
         <p>{{ id }}</p>
       </div>
       <div class="mainContent">
-        <div class="msg" v-for="(item, key) in msgList" :key="key">
-          <p>
-            from {{ item.send_name }} to {{ item.receiver }} at
-            {{ item.send_time }}
-          </p>
-          <p>{{ item.send_msg }}</p>
+        <div class="msg">
+          <ul>
+            <li v-for="(item, key) in msgList" :key="key">
+              <p class="time"><span v-text="item.send_time"></span></p>
+              <div
+                class="infoItem"
+                :class="item.send_id == userName ? 'msg-right' : 'msg-left'"
+              >
+                <el-avatar
+                  :src="item.send_id == userName ? myAvatarUrl : friendUrl"
+                  title="查看好友信息"
+                  shape="square"
+                ></el-avatar>
+                <div
+                  :class="item.send_id == userName ? 'text-right' : 'text-left'"
+                >
+                  <span class="span-left"></span>
+                  {{ item.send_msg }}
+                  <span class="span-right"></span>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
       <div class="edit">
@@ -100,16 +117,24 @@ export default class Intercourse extends Vue {
   // 编辑个人信息弹窗
   public editInfoShow: boolean = false;
   public userName: string = "";
+  // 好友列表
+  public friends: any[] = [{ friendName: "请先添加好友", avatarUrl: "" }];
   // 接收者
-  public id: string = "";
+  public id: string = "请先添加好友";
+  @Watch("id", { immediate: true })
+  handleIdChange(newVal: string) {
+    this.friendUrl =
+      this.friends.find((item) => item.friendName === newVal).avatarUrl ||
+      `${require("@/assets/images/chat/avatar.svg")}`;
+  }
+  // 接收者头像Url
+  public friendUrl: string = "";
   // 搜索框的内容
   public value: string = "";
   // 发送的消息
   public inputValue: string = "";
   public path: string = "ws://localhost:3001?id=";
   public socket: any = {};
-  // 好友列表
-  public friends: any[] = [{ friendName: "请先添加好友", avatarUrl: "" }];
   // 在线好友
   public onlineFriend: string[] = [];
   public options: any[] = [];
@@ -159,18 +184,20 @@ export default class Intercourse extends Vue {
     }
     const info: any = {
       type: "chat",
-      send_time: new Date(),
+      send_time: new Date().toLocaleString(),
       send_msg: this.inputValue,
       send_id: this.userName,
       send_name: this.userName,
       receiver: this.id,
     };
     // 发送后跳到第一个记录
-    const index = this.friends.findIndex((item) => item.firendName === this.id);
+    const index = this.friends.findIndex((item) => {
+      return item.friendName === this.id;
+    });
     this.friends.unshift(...this.friends.splice(index, 1));
     // 发送信息后，对应的聊天跳到第一个记录，样式也相应改变
     this.isActive.forEach((item: boolean, ind: number) => {
-      this.isActive[index] = ind === 0 ? true : false;
+      this.isActive[ind] = !Boolean(ind);
     });
     this.inputValue = "";
     this.msgListObj[this.id].push(info);
@@ -271,7 +298,7 @@ export default class Intercourse extends Vue {
               });
             });
         }
-        // 对方统一添加之后更新好友列表
+        // 对方同意添加之后更新好友列表
         else if (data.type === "renewList") {
           let index = this.friends.findIndex(
             (item) => item.friendName === data.send_name
@@ -397,7 +424,6 @@ export default class Intercourse extends Vue {
   public openEditInfo() {
     console.log("组件打开");
     this.editInfoShow = true;
-    console.log(this.editInfoShow);
   }
 }
 </script>
@@ -507,8 +533,83 @@ export default class Intercourse extends Vue {
       width: 100%;
       height: calc(100% - 165px);
       overflow-y: auto;
+      background: #f4f4f4;
       .msg {
         margin-left: 1%;
+        li {
+          list-style-type: none;
+          margin-bottom: 70px;
+          .infoItem {
+            display: flex;
+            flex-direction: row;
+          }
+          .msg-right {
+            margin-right: 3%;
+            float: right;
+            flex-direction: row-reverse;
+          }
+          .msg-left {
+            float: left;
+          }
+          .text-left {
+            position: relative;
+            padding: 0 10px 0 10px;
+            min-height: 40px;
+            font-size: 15px;
+            border-radius: 7px;
+            max-width: 300px;
+            margin-left: 20px;
+            background: rgb(255, 255, 255);
+            line-height: 40px;
+            .span-left {
+              position: absolute;
+              right: 100%;
+              top: 12px;
+              width: 0;
+              height: 0;
+              line-height: 0;
+              font-size: 0;
+              border: 7px solid transparent;
+              border-right-color: rgb(255, 255, 255);
+            }
+          }
+          .text-right {
+            display: flex;
+            position: relative;
+            word-break: break-all;
+            padding: 0 10px 0 10px;
+            border-radius: 7px;
+            min-height: 40px;
+            max-width: 300px;
+            font-size: 15px;
+            margin-right: 20px;
+            background: #9eea6a;
+            line-height: 40px;
+            .span-right {
+              position: absolute;
+              right: -12px;
+              top: 12px;
+              width: 0;
+              height: 0;
+              line-height: 0;
+              font-size: 0;
+              border: 6px solid transparent;
+              border-left-color: #9eea6a;
+            }
+          }
+        }
+        .time {
+          display: flex;
+          width: 100%;
+          justify-content: center;
+          span {
+            padding: 0 5px;
+            font-size: 12px;
+            color: #fff;
+            border-radius: 2px;
+            background-color: #dadada;
+          }
+        }
       }
     }
     .edit {
