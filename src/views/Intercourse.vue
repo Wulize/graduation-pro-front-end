@@ -37,8 +37,25 @@
         :key="i"
         @click="chooseReciever(i)"
       >
-        <el-avatar :src="item.avatarUrl || avatarUrl[0]"></el-avatar>
-        <p>{{ item.friendName }}</p>
+        <div class="userInfo">
+          <el-avatar :src="item.avatarUrl || avatarUrl[0]"></el-avatar>
+          <p>{{ item.friendName }}</p>
+        </div>
+        <p class="lastInfo">
+          {{
+            !(
+              (msgListObj[item.friendName] || [])[
+                (msgListObj[item.friendName] || []).length - 1
+              ] || {}
+            ).msgType === true
+              ? (
+                  (msgListObj[item.friendName] || [])[
+                    (msgListObj[item.friendName] || []).length - 1
+                  ] || {}
+                ).send_msg
+              : "暂不支持显示此数据类型"
+          }}
+        </p>
         <div class="infoNum" v-if="unreadMsg[item.friendName] > 0">
           {{ unreadMsg[item.friendName] }}
         </div>
@@ -70,7 +87,12 @@
                   :class="item.send_id == userName ? 'text-right' : 'text-left'"
                 >
                   <span class="span-left"></span>
-                  {{ item.send_msg }}
+                  <p v-if="!item.msgType">{{ item.send_msg }}</p>
+                  <img
+                    :src="item.send_msg"
+                    style="max-width: 200px; max-height: 200px"
+                    v-if="item.msgType === '1'"
+                  />
                   <span class="span-right"></span>
                 </div>
               </div>
@@ -79,16 +101,29 @@
         </div>
       </div>
       <div class="edit">
+        <div class="icon">
+          <div @click="sendPic">
+            <el-avatar :src="avatarUrl[3]" title="发送本地图片"></el-avatar>
+          </div>
+          <div>
+            <el-avatar :src="avatarUrl[4]" title="发送本地文件"></el-avatar>
+          </div>
+          <div>
+            <el-avatar :src="avatarUrl[5]" title="发送语音"></el-avatar>
+          </div>
+        </div>
         <!-- 添加输入内容 -->
-        <input
+        <el-input
           id="text"
-          type="text"
-          placeholder="说点什么吧..."
+          type="textarea"
+          placeholder=""
           v-model="inputValue"
           @keyup.enter="chat"
-        />
+          autofocus
+        >
+        </el-input>
         <!-- 给发送也绑定一个事件 -->
-        <span id="btn" @click="chat">发送</span>
+        <span id="btn" @click="chat">发送(S)</span>
       </div>
     </div>
     <addfriend
@@ -97,6 +132,17 @@
       @confirm="handleConfirm"
     ></addfriend>
     <editMyInfo :isShow="editInfoShow" @close="closeEditInfo"></editMyInfo>
+    <!-- 提交图片 -->
+    <el-upload
+      style="position: absolute; display: none"
+      action="#"
+      :on-change="handleChangeUpload"
+      :on-success="uploadSuccess"
+      ref="upload"
+      list-type="picture-card"
+      :auto-upload="false"
+    >
+    </el-upload>
   </div>
 </template>
 
@@ -142,6 +188,9 @@ export default class Intercourse extends Vue {
     `${require("@/assets/images/chat/avatar.svg")}`,
     `${require("@/assets/images/chat/cat.svg")}`,
     `${require("@/assets/images/chat/add.svg")}`,
+    `${require("@/assets/images/chat/photo.svg")}`,
+    `${require("@/assets/images/chat/file.svg")}`,
+    `${require("@/assets/images/chat/voice.svg")}`,
   ];
   // 当前好友的聊天记录
   public msgList: any[] = [];
@@ -425,6 +474,67 @@ export default class Intercourse extends Vue {
     console.log("组件打开");
     this.editInfoShow = true;
   }
+  public sendPic() {
+    console.log("点击发送图片");
+    // console.log(this.$refs.upload);
+
+    (this.$refs.upload as any).$children[1].$refs.input.click();
+  }
+  // 获取图片的值
+  public handleChangeUpload(file: any, fileList: any) {
+    this.getBase64(file.raw).then((res) => {
+      // 初始化
+      if (this.id === "请先添加好友") {
+        this.$message({
+          showClose: true,
+          message: "找个好友聊天去吧，单身狗！",
+          type: "warning",
+        });
+        return;
+      }
+      const info: any = {
+        type: "chat",
+        msgType: "1",
+        send_time: new Date().toLocaleString(),
+        send_msg: res,
+        send_id: this.userName,
+        send_name: this.userName,
+        receiver: this.id,
+      };
+      // 发送后跳到第一个记录
+      const index = this.friends.findIndex((item) => {
+        return item.friendName === this.id;
+      });
+      this.friends.unshift(...this.friends.splice(index, 1));
+      // 发送信息后，对应的聊天跳到第一个记录，样式也相应改变
+      this.isActive.forEach((item: boolean, ind: number) => {
+        this.isActive[ind] = !Boolean(ind);
+      });
+      this.inputValue = "";
+      this.msgListObj[this.id].push(info);
+      this.send(JSON.stringify(info));
+    });
+  }
+  // 聊天图片发送成功之后的回调
+  public uploadSuccess(data: any) {
+    (this.$refs.upload as any).clearFiles();
+  }
+  public getBase64(file: any) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      let imgResult: any = "";
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        imgResult = reader.result;
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.onloadend = () => {
+        resolve(imgResult);
+      };
+    });
+  }
 }
 </script>
 
@@ -479,9 +589,23 @@ export default class Intercourse extends Vue {
     .item {
       position: relative;
       height: 10vh;
+      min-height: 94px;
       border-bottom: 2px solid rgb(255, 255, 255);
       background: rgb(236, 234, 234);
       display: flex;
+      flex-direction: column;
+      .userInfo {
+        display: flex;
+      }
+      .lastInfo {
+        font-size: 13px;
+        color: #757575;
+        padding-left: 40px;
+        width: 70%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
       .el-avatar {
         margin-top: 2.5%;
       }
@@ -531,7 +655,7 @@ export default class Intercourse extends Vue {
     }
     .mainContent {
       width: 100%;
-      height: calc(100% - 165px);
+      height: calc(100% - 250px);
       overflow-y: auto;
       background: #f4f4f4;
       .msg {
@@ -542,6 +666,9 @@ export default class Intercourse extends Vue {
           .infoItem {
             display: flex;
             flex-direction: row;
+            p {
+              margin: 0;
+            }
           }
           .msg-right {
             margin-right: 3%;
@@ -552,15 +679,22 @@ export default class Intercourse extends Vue {
             float: left;
           }
           .text-left {
+            display: flex;
             position: relative;
+            word-break: break-all;
             padding: 0 10px 0 10px;
             min-height: 40px;
             font-size: 15px;
             border-radius: 7px;
             max-width: 300px;
             margin-left: 20px;
+            margin-bottom: 20px;
             background: rgb(255, 255, 255);
             line-height: 40px;
+            img {
+              margin-bottom: 10px;
+              margin-top: 10px;
+            }
             .span-left {
               position: absolute;
               right: 100%;
@@ -582,9 +716,14 @@ export default class Intercourse extends Vue {
             min-height: 40px;
             max-width: 300px;
             font-size: 15px;
+            margin-bottom: 20px;
             margin-right: 20px;
             background: #9eea6a;
             line-height: 40px;
+            img {
+              margin-bottom: 10px;
+              margin-top: 10px;
+            }
             .span-right {
               position: absolute;
               right: -12px;
@@ -613,35 +752,50 @@ export default class Intercourse extends Vue {
       }
     }
     .edit {
-      height: 115px;
+      height: 200px;
       width: 100%;
-      background: rgb(238, 238, 238);
-      position: absolute;
+      background: rgb(255, 255, 255);
+      position: relative;
       bottom: 0;
-      input {
-        width: 99.2%;
-        height: 45px;
+      .icon {
+        height: 35px;
+        margin-top: 5px;
+        display: flex;
+        justify-content: flex-start;
+        background: white;
+        .el-avatar {
+          background: white;
+          height: 30px;
+          width: 30px;
+          margin-left: 30px;
+        }
+      }
+      .el-textarea {
+        width: 100%;
         outline: none;
         font-size: 20px;
         text-indent: 10px;
         position: absolute;
-        border-radius: 6px;
+        .el-textarea__inner {
+          height: 160px !important;
+          border: none;
+          // background-image: url("C:\\Users\\wulize\\Desktop\\毕业设计论文\\img\\1.png");
+        }
       }
-      span {
+      #btn {
         display: inline-block;
         width: 62px;
-        height: 48px;
-        background: #ccc;
-        font-weight: 900;
-        line-height: 45px;
+        height: 25px;
+        background: #d8d8d8;
+        font-weight: 500;
+        line-height: 25px;
         cursor: pointer;
         text-align: center;
         position: absolute;
-        right: 2px;
-        top: 1px;
-        border-radius: 6px;
+        right: 30px;
+        bottom: 10px;
       }
-      span:hover {
+      #btn:hover {
         color: #fff;
         background: #999;
       }
