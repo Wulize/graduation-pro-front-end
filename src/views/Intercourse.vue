@@ -92,6 +92,7 @@
                     :src="item.send_msg"
                     style="max-width: 200px; max-height: 200px"
                     v-if="item.msgType === '1'"
+                    @click="imgClick"
                   />
                   <span class="span-right"></span>
                 </div>
@@ -132,6 +133,12 @@
       @confirm="handleConfirm"
     ></addfriend>
     <editMyInfo :isShow="editInfoShow" @close="closeEditInfo"></editMyInfo>
+    <!-- 点击查看大图 -->
+    <pictureBoost
+      :pictureBoostShow="pictureBoostShow"
+      :imgData="imgData"
+      @picBoostClose="picBoostClose"
+    ></pictureBoost>
     <!-- 提交图片 -->
     <el-upload
       style="position: absolute; display: none"
@@ -150,10 +157,14 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import addfriend from "../components/Intercourse/addfriend.vue";
 import editMyInfo from "../components/Intercourse/personalInfo.vue";
+import pictureBoost from "../components/Intercourse/picture-boost.vue";
 @Component({
-  components: { addfriend, editMyInfo },
+  components: { addfriend, editMyInfo, pictureBoost },
 })
 export default class Intercourse extends Vue {
+  // 点击聊天记录查看大图组件
+  public pictureBoostShow: boolean = false;
+  public imgData: string = "";
   // 个人头像地址
   public myAvatarUrl: string =
     sessionStorage.getItem("avatarUrl") ||
@@ -534,6 +545,14 @@ export default class Intercourse extends Vue {
         resolve(imgResult);
       };
     });
+  }
+  // 点击聊天图片放大操作
+  public imgClick(event: any) {
+    this.pictureBoostShow = true;
+    this.imgData = event.srcElement.currentSrc;
+  }
+  public picBoostClose() {
+    this.pictureBoostShow = false;
   }
 }
 </script>
