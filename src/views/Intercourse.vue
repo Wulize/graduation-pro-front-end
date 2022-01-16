@@ -94,6 +94,27 @@
                     v-if="item.msgType === '1'"
                     @click="imgClick"
                   />
+                  <div
+                    ref="audio"
+                    v-if="item.msgType === '2'"
+                    @click="broadcast($event)"
+                  >
+                    <span>点击查看语音消息</span>
+                    <audio
+                      preload="auto"
+                      hidden="true"
+                      @ended="onBroadcastEnd($event)"
+                    >
+                      <source
+                        :src="
+                          base64ToBlob(item.send_msg) === ''
+                            ? ''
+                            : createObjectURL(base64ToBlob(item.send_msg))
+                        "
+                      />
+                    </audio>
+                  </div>
+
                   <span class="span-right"></span>
                 </div>
               </div>
@@ -109,7 +130,7 @@
           <div>
             <el-avatar :src="avatarUrl[4]" title="发送本地文件"></el-avatar>
           </div>
-          <div>
+          <div @mousedown="startRecord" @mouseup="stopRecord">
             <el-avatar :src="avatarUrl[5]" title="发送语音"></el-avatar>
           </div>
         </div>
@@ -119,7 +140,7 @@
           type="textarea"
           placeholder=""
           v-model="inputValue"
-          @keyup.enter="chat"
+          @keyup.enter.native="chat"
           autofocus
         >
         </el-input>
@@ -158,10 +179,17 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import addfriend from "../components/Intercourse/addfriend.vue";
 import editMyInfo from "../components/Intercourse/personalInfo.vue";
 import pictureBoost from "../components/Intercourse/picture-boost.vue";
+import Recorderx, { ENCODE_TYPE } from "recorderx";
+import { blobToBase64, base64ToBlob } from "@/utils/blobToBase64";
 @Component({
   components: { addfriend, editMyInfo, pictureBoost },
 })
 export default class Intercourse extends Vue {
+  // 正在播放的节点
+  public brocastNode: any;
+  public rc: any = new Recorderx();
+  public audioaccet: boolean = false;
+  public statusaudio: boolean = false;
   // 点击聊天记录查看大图组件
   public pictureBoostShow: boolean = false;
   public imgData: string = "";
@@ -444,6 +472,24 @@ export default class Intercourse extends Vue {
     // await this.getFriendList();
     // await this.init();
     this.getFriendList(this.init);
+    // 获取麦克风权限
+    this.rc
+      .start()
+      .then(() => {
+        this.rc.pause();
+        this.rc.clear();
+        this.audioaccet = true;
+        this.$message({
+          message: "获取麦克风成功",
+          type: "success",
+        });
+      })
+      .catch((error: any) => {
+        this.$message({
+          message: "获取麦克风失败",
+          type: "warning",
+        });
+      });
   }
   private scrollToBottom() {
     setTimeout(() => {
@@ -553,6 +599,103 @@ export default class Intercourse extends Vue {
   }
   public picBoostClose() {
     this.pictureBoostShow = false;
+  }
+  // 开始录音
+  public startRecord() {
+    this.$message({
+      showClose: true,
+      message: "开始录音，松开按钮结束录音！",
+      type: "success",
+    });
+    this.rc
+      .start()
+      .then((res: any) => {
+        console.log("start recording");
+      })
+      .catch((error: any) => {
+        console.log("Recording failed.", error);
+      });
+  }
+  // 结束录音
+  public stopRecord() {
+    this.$message({
+      showClose: true,
+      message: "录音完成！",
+      type: "success",
+    });
+    this.statusaudio = true;
+    this.rc.pause();
+    this.sendRecord();
+  }
+  // 发送录音
+  public async sendRecord() {
+    // 获取录音的blob文件
+    const wav = this.rc.getRecord({
+      encodeTo: ENCODE_TYPE.WAV,
+      compressible: true,
+    });
+    // 将blob修改成base64编码
+    const recordData: string = String(await blobToBase64(wav));
+    if (this.id === "请先添加好友") {
+      this.$message({
+        showClose: true,
+        message: "找个好友聊天去吧，单身狗！",
+        type: "warning",
+      });
+      this.rc.clear();
+      this.statusaudio = false;
+      return;
+    }
+    const info: any = {
+      type: "chat",
+      msgType: "2",
+      send_time: new Date().toLocaleString(),
+      send_msg: recordData,
+      send_id: this.userName,
+      send_name: this.userName,
+      receiver: this.id,
+    };
+    // 发送后跳到第一个记录
+    const index = this.friends.findIndex((item) => {
+      return item.friendName === this.id;
+    });
+    this.friends.unshift(...this.friends.splice(index, 1));
+    // 发送信息后，对应的聊天跳到第一个记录，样式也相应改变
+    this.isActive.forEach((item: boolean, ind: number) => {
+      this.isActive[ind] = !Boolean(ind);
+    });
+    this.inputValue = "";
+    this.msgListObj[this.id].push(info);
+    this.send(JSON.stringify(info));
+    this.rc.clear();
+    this.statusaudio = false;
+  }
+
+  // 播放音频
+  public broadcast(event: any) {
+    // 判断当前是否有音频正在播放
+    if (this.brocastNode) {
+      // 暂停
+      this.brocastNode.pause();
+      // 将时间定位到0s的位置
+      this.brocastNode.currentTime = 0;
+    }
+    // 获取audio节点
+    const audio = event.path[1].children[1];
+    this.brocastNode = audio;
+    if (audio.paused) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  }
+  // 音频播放结束
+  public onBroadcastEnd(event: any) {
+    console.log("音频播放结束");
+    // 播放结束就不记录当前节点，另其值等于undefined
+    if (this.brocastNode === event.path[1].children[1]) {
+      this.brocastNode = undefined;
+    }
   }
 }
 </script>
