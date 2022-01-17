@@ -97,9 +97,14 @@
                   <div
                     ref="audio"
                     v-if="item.msgType === '2'"
-                    @click="broadcast($event)"
+                    @click.capture="broadcast($event)"
+                    class="audio-msg"
                   >
-                    <span>点击查看语音消息</span>
+                    <div class="wifi-cont">
+                      <div class="wifi-circle first"></div>
+                      <div class="wifi-circle second"></div>
+                      <div class="wifi-circle third"></div>
+                    </div>
                     <audio
                       preload="auto"
                       hidden="true"
@@ -679,14 +684,28 @@ export default class Intercourse extends Vue {
       this.brocastNode.pause();
       // 将时间定位到0s的位置
       this.brocastNode.currentTime = 0;
+      // 点下一个语音时，当前样式动画停止
+      this.brocastNode.parentElement.children[0].children[1].style.cssText =
+        "animation: none";
+      this.brocastNode.parentElement.children[0].children[2].style.cssText =
+        "animation: none";
     }
     // 获取audio节点
-    const audio = event.path[1].children[1];
+    const audio = event.currentTarget.children[1];
     this.brocastNode = audio;
     if (audio.paused) {
       audio.play();
+      // 当前语音的样式动画播放
+      audio.parentElement.children[0].children[1].style.cssText =
+        "animation: fade 1s linear 0.2s infinite";
+      audio.parentElement.children[0].children[2].style.cssText =
+        "animation: fade 1s linear 0.4s infinite";
     } else {
       audio.pause();
+      audio.parentElement.children[0].children[1].style.cssText =
+        "animation: none";
+      audio.parentElement.children[0].children[2].style.cssText =
+        "animation: none";
     }
   }
   // 音频播放结束
@@ -694,6 +713,10 @@ export default class Intercourse extends Vue {
     console.log("音频播放结束");
     // 播放结束就不记录当前节点，另其值等于undefined
     if (this.brocastNode === event.path[1].children[1]) {
+      this.brocastNode.parentElement.children[0].children[1].style.cssText =
+        "animation: none";
+      this.brocastNode.parentElement.children[0].children[2].style.cssText =
+        "animation: none";
       this.brocastNode = undefined;
     }
   }
@@ -868,6 +891,48 @@ export default class Intercourse extends Vue {
               border: 7px solid transparent;
               border-right-color: rgb(255, 255, 255);
             }
+            .wifi-cont {
+              width: 50px;
+              height: 50px;
+              position: relative;
+              margin: 0 auto;
+              transform: rotate(135deg) scale(0.5);
+              overflow: hidden;
+              .wifi-circle {
+                box-sizing: border-box;
+                border: 2px solid #000000;
+                border-radius: 50%;
+                position: absolute;
+              }
+              .first {
+                width: 5px;
+                height: 5px;
+                left: 45px;
+                top: 45px;
+              }
+              .second {
+                width: 25px;
+                height: 25px;
+                left: 35px;
+                top: 35px;
+                animation: none;
+              }
+              .third {
+                width: 40px;
+                height: 40px;
+                left: 25px;
+                top: 25px;
+                animation: none;
+              }
+              @keyframes fade {
+                from {
+                  opacity: 0;
+                }
+                to {
+                  opacity: 1;
+                }
+              }
+            }
           }
           .text-right {
             display: flex;
@@ -896,6 +961,48 @@ export default class Intercourse extends Vue {
               font-size: 0;
               border: 6px solid transparent;
               border-left-color: #9eea6a;
+            }
+            .wifi-cont {
+              width: 50px;
+              height: 50px;
+              position: relative;
+              margin: 0 auto;
+              transform: rotate(-45deg) scale(0.5);
+              overflow: hidden;
+              .wifi-circle {
+                box-sizing: border-box;
+                border: 2px solid #000000;
+                border-radius: 50%;
+                position: absolute;
+              }
+              .first {
+                width: 5px;
+                height: 5px;
+                left: 45px;
+                top: 45px;
+              }
+              .second {
+                width: 25px;
+                height: 25px;
+                left: 35px;
+                top: 35px;
+                animation: none;
+              }
+              .third {
+                width: 40px;
+                height: 40px;
+                left: 25px;
+                top: 25px;
+                animation: none;
+              }
+              @keyframes fade {
+                from {
+                  opacity: 0;
+                }
+                to {
+                  opacity: 1;
+                }
+              }
             }
           }
         }
