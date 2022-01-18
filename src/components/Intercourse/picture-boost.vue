@@ -28,7 +28,6 @@ export default class PictureBoost extends Vue {
   // 滚轮滑动
   public scroll(e: any) {
     const direction = e.deltaY > 0 ? "down" : "up";
-    console.log("滚轮滚动");
     if (direction === "up") {
       // 滑轮向上滚动
       if (this.multiples >= 2) return;

@@ -185,7 +185,7 @@ import addfriend from "../components/Intercourse/addfriend.vue";
 import editMyInfo from "../components/Intercourse/personalInfo.vue";
 import pictureBoost from "../components/Intercourse/picture-boost.vue";
 import Recorderx, { ENCODE_TYPE } from "recorderx";
-import { blobToBase64, base64ToBlob } from "@/utils/blobToBase64";
+import { blobToBase64 } from "@/utils/index";
 @Component({
   components: { addfriend, editMyInfo, pictureBoost },
 })
@@ -376,6 +376,7 @@ export default class Intercourse extends Vue {
                       this.chooseReciever(index);
                     }
                     this.$message({
+                      showClose: true,
                       type: "success",
                       message: "添加成功",
                     });
@@ -386,6 +387,7 @@ export default class Intercourse extends Vue {
             })
             .catch(() => {
               this.$message({
+                showClose: true,
                 type: "info",
                 message: "已拒绝",
               });
@@ -485,12 +487,14 @@ export default class Intercourse extends Vue {
         this.rc.clear();
         this.audioaccet = true;
         this.$message({
+          showClose: true,
           message: "获取麦克风成功",
           type: "success",
         });
       })
       .catch((error: any) => {
         this.$message({
+          showClose: true,
           message: "获取麦克风失败",
           type: "warning",
         });
@@ -542,8 +546,22 @@ export default class Intercourse extends Vue {
 
     (this.$refs.upload as any).$children[1].$refs.input.click();
   }
+  //   提交前进行判断
+  public beforeImgUpload(file: any) {
+    const isJPG = file.type === "image/jpeg" || file.type === "image/png";
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isJPG) {
+      this.$message.error("上传图片只能是 JPG、PNG格式!");
+    }
+    if (!isLt2M) {
+      this.$message.error("上传头像图片大小不能超过 2MB!");
+    }
+    return isJPG && isLt2M;
+  }
   // 获取图片的值
   public handleChangeUpload(file: any, fileList: any) {
+    // 判断提交前的文件是否符合条件
+    if (this.beforeImgUpload(file.raw) === false) return;
     this.getBase64(file.raw).then((res) => {
       // 初始化
       if (this.id === "请先添加好友") {
