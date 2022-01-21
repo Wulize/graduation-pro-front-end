@@ -17,6 +17,9 @@ AmapVue.config.key = '6f658bc4907e5f24b9e429b9311314c6';
 (AmapVue.config.plugins as any) = [
   'AMap.ToolBar',
   'AMap.MoveAnimation',
+  'AMap.Walking',
+  'AMap.Driving',
+  'AMap.DragRoute'
   // 在此配置你需要预加载的插件，如果不配置，在使用到的时候会自动异步加载
 ];
 Vue.use(AmapVue);
