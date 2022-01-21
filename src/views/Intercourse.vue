@@ -1066,7 +1066,6 @@ export default class Intercourse extends Vue {
         .el-textarea__inner {
           height: 160px !important;
           border: none;
-          // background-image: url("C:\\Users\\wulize\\Desktop\\毕业设计论文\\img\\1.png");
         }
       }
       #btn {
