@@ -42,6 +42,7 @@ export default class Navbar extends Vue {
   justify-content: center;
   width: 600px;
   height: 75px;
+  border-radius: 30px;
   .nav-menu {
     color: lightgray;
     background: none !important;

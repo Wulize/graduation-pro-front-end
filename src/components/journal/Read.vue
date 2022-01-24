@@ -1,0 +1,355 @@
+<template>
+  <div class="read-wrapper">
+    <div class="journal-list" ref="listWrapper" v-if="ifShowList">
+      <div class="list-column1 list-item">
+        <div class="item" v-for="journal,index in journalList1" :key="index" @click="toWatchJournal(journal)">
+          <div class="item-tag">
+            <div class="tag">{{journal.tab}}</div>
+            <div class="time">{{journal.date}}</div>
+          </div>
+          <div class="title">{{journal.title}}</div>
+          <div class="pic"><img :src="journal.headPic" /></div>
+          <div class="user">
+            <div class="user-info">
+              <div class="avatar"><img src="~@/assets/images/home/home03.jpg" /></div>
+              <div class="name">{{journal.userName}}</div>
+            </div>
+            <div class="good">
+              <i :class="['el-icon-lollipop',ifGood ? 'selected-lolli':'normal-lolli']" @click="good"></i>
+              <span>1.2万</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="list-column2 list-item">
+        <div class="item" v-for="journal,index in journalList2" :key="index" @click="toWatchJournal(journal)">
+          <div class="item-tag">
+            <div class="tag">{{journal.tab}}</div>
+            <div class="time">{{journal.date}}</div>
+          </div>
+          <div class="title">{{journal.title}}</div>
+          <div class="pic"><img :src="journal.headPic" /></div>
+          <div class="user">
+            <div class="user-info">
+              <div class="avatar"><img src="~@/assets/images/home/home03.jpg" /></div>
+              <div class="name">{{journal.userName}}</div>
+            </div>
+            <div class="good">
+              <i :class="['el-icon-lollipop',ifGood ? 'selected-lolli':'normal-lolli']" @click="good"></i>
+              <span>1.2万</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="list-column3 list-item">
+        <div class="item" v-for="journal,index in journalList3" :key="index" @click="toWatchJournal(journal)">
+          <div class="item-tag">
+            <div class="tag">{{journal.tab}}</div>
+            <div class="time">{{journal.date}}</div>
+          </div>
+          <div class="title">{{journal.title}}</div>
+          <div class="pic"><img :src="journal.headPic" /></div>
+          <div class="user">
+            <div class="user-info">
+              <div class="avatar"><img src="~@/assets/images/home/home03.jpg" /></div>
+              <div class="name">{{journal.userName}}</div>
+            </div>
+            <div class="good">
+              <i :class="['el-icon-lollipop',ifGood ? 'selected-lolli':'normal-lolli']" @click="good"></i>
+              <span>1.2万</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="watch-wrapper" v-else>
+      <div class="head-pic">
+        <img :src="choosedJournal.headPic" />
+        <div class="title-part">
+          <div class="title">{{choosedJournal.title}}</div>
+          <div class="author">by {{choosedJournal.userName}}</div>
+        </div>
+        <div class="back-btn">
+          <el-button type="plain" icon="el-icon-back" @click="backToList"></el-button>
+        </div>
+      </div>
+      <div class="hide-scroll">
+        <div class="content" v-html="choosedJournal.content">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+@Component({})
+export default class extends Vue {
+  public ifGood: boolean = false // 控制读写切换
+  public currentPage: number = 1 // 当前页码
+  public journalList1: any[] = [] // 游记列表1
+  public journalList2: any[] = [] // 游记列表2
+  public journalList3: any[] = [] // 游记列表3
+  public timer: any = null // 节流定时器
+  public ifShowList: boolean = true // 游记列表 or 某篇游记的查看
+  public choosedJournal: any = {} // 点击的游记
+
+  public good(): void {
+    this.ifGood = !this.ifGood
+  }
+
+  public handleScroll(): void {
+    // 监听滚动事件
+    clearTimeout(this.timer)
+    this.timer = setTimeout(() => {
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = document.documentElement.clientHeight
+      const scrollTop = document.documentElement.scrollTop
+      if (clientHeight + scrollTop === scrollHeight) {
+        this.getJournal()
+      }
+    }, 500)
+  }
+
+  public toWatchJournal(journal: any): void {
+    // 查看游记
+    this.choosedJournal = journal
+    window.removeEventListener('scroll', this.handleScroll, true)
+    this.ifShowList = false
+  }
+  public backToList(): void {
+    // 返回游记列表
+    this.ifShowList = true
+    window.addEventListener('scroll', this.handleScroll, true)
+  }
+  public getJournal(): void {
+    // 获取游记
+    ;(this as any).$journal
+      .get('/getJournal', {
+        currentPage: this.currentPage,
+      })
+      .then((data: any) => {
+        if (data.journalList.length === 0) {
+          this.$message({
+            showClose: true,
+            message: '没有更多游记了哦！',
+            type: 'warning',
+          })
+          window.removeEventListener('scroll', this.handleScroll, true)
+        } else {
+          let journalList = data.journalList
+          let index = 1
+          for (let i = 0; i < journalList.length; i++) {
+            if (index === 1) {
+              this.journalList1.push(journalList[i])
+              index++
+            } else if (index === 2) {
+              this.journalList2.push(journalList[i])
+              index++
+            } else {
+              this.journalList3.push(journalList[i])
+              index = 1
+            }
+          }
+          this.currentPage += 1
+          console.log(data.journalList)
+        }
+      })
+      .catch((err: any) => {
+        console.log(err)
+      })
+  }
+
+  mounted() {
+    this.getJournal()
+  }
+
+  created() {
+    window.addEventListener('scroll', this.handleScroll, true)
+  }
+  destroyed() {
+    window.removeEventListener('scroll', this.handleScroll, true)
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.read-wrapper {
+  width: 100%;
+  padding-bottom: 30px;
+  // height: 100%;
+  .journal-list {
+    width: 100%;
+    // height: 210vh;
+    // overflow: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    .list-item {
+      width: 350px;
+      //   height: 200px;
+      // background: rgba($color: white, $alpha: 0.7);
+      .item {
+        background: white;
+        border-radius: 10px;
+        border: 1px solid white;
+        cursor: pointer;
+        box-shadow: 0 0 10px white;
+        &:hover {
+          opacity: 0.9;
+        }
+        &:not(:nth-child(1)) {
+          margin-top: 20px;
+        }
+        .item-tag {
+          display: flex;
+          align-items: center;
+          margin-left: 20px;
+          margin-top: 20px;
+          .tag {
+            background: lightgreen;
+            font-size: 17px;
+            color: white;
+            width: 60px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            border-radius: 5px;
+          }
+          .time {
+            font-size: 17px;
+            color: rgba($color: gray, $alpha: 0.5);
+            margin-left: 20px;
+          }
+        }
+        .title {
+          font-size: 22px;
+          color: gray;
+          margin-left: 20px;
+          margin-top: 15px;
+        }
+        .pic {
+          //   display: flex;
+          margin-top: 15px;
+          margin-left: 20px;
+          img {
+            width: 90%;
+            object-fit: cover;
+            margin-bottom: 20px;
+          }
+        }
+        .user {
+          display: flex;
+          align-items: center;
+          margin-left: 20px;
+          width: 84.5%;
+          justify-content: space-between;
+          margin-bottom: 20px;
+          .user-info {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            .avatar {
+              img {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+              }
+            }
+            .name {
+              color: gray;
+              font-size: 17px;
+              margin-left: 10px;
+            }
+          }
+
+          .good {
+            i {
+              font-size: 21px;
+              cursor: pointer;
+            }
+            .normal-lolli {
+              color: gray;
+            }
+            .selected-lolli {
+              color: palevioletred;
+            }
+            i:hover {
+              color: palevioletred;
+            }
+            span {
+              font-size: 17px;
+              color: gray;
+              margin-left: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+  .watch-wrapper {
+    .head-pic {
+      width: 100%;
+      height: 350px;
+      position: relative;
+      box-shadow: 0 0 10px white;
+      img {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+      }
+      .title-part {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        background: rgba($color: yellow, $alpha: 0.5);
+        box-shadow: 0 0 10px yellow;
+        .title {
+          font-size: 50px;
+          color: white;
+        }
+        .author {
+          font-size: 20px;
+          color: rgba($color: white, $alpha: 0.7);
+        }
+      }
+      .back-btn {
+        position: absolute;
+        left: 0;
+        top: 0;
+        .el-button {
+          width: 50px;
+          height: 30px;
+          font-size: 20px;
+          color: white;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background: rgba($color: yellow, $alpha: 0.5);
+          &:hover {
+            background: lightgreen;
+            color: white;
+          }
+        }
+      }
+    }
+    .hide-scroll {
+      width: 100%;
+      height: 500px;
+      margin-top: 30px;
+      overflow: hidden;
+      background: rgba($color: white, $alpha: 0.8);
+      box-shadow: 0 0 10px white;
+      .content {
+        width: 105%;
+        height: 500px;
+        overflow: auto;
+        margin-top: 0;
+      }
+    }
+  }
+}
+</style>
