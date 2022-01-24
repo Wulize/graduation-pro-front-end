@@ -1,11 +1,6 @@
 <template>
   <div class="nav-wrapper">
-    <el-menu
-      :default-active="activeIndex"
-      mode="horizontal"
-      class="nav-menu"
-      @select="toSelectedRoute"
-    >
+    <el-menu :default-active="activeIndex" mode="horizontal" class="nav-menu" @select="toSelectedRoute">
       <el-menu-item index="/home">首页</el-menu-item>
       <el-menu-item index="/plan">计划</el-menu-item>
       <el-menu-item index="/sight">景点</el-menu-item>
@@ -17,21 +12,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 @Component
 export default class Navbar extends Vue {
-  public activeIndex: string = this.$route.path;
-  @Watch("$route")
+  public activeIndex: string = this.$route.path
+  @Watch('$route')
   handleWatch(newVal: any) {
-    this.activeIndex = newVal.path;
-    if (newVal.path === "/intercourse") {
-      this.$store.state.showNav = false;
+    this.activeIndex = newVal.path
+    if (newVal.path === '/intercourse') {
+      this.$store.state.showNav = false
     } else {
-      this.$store.state.showNav = true;
+      this.$store.state.showNav = true
     }
   }
   public toSelectedRoute(index: string) {
-    this.$router.push(index);
+    this.$router.push(index)
   }
 }
 </script>
@@ -40,9 +35,10 @@ export default class Navbar extends Vue {
 .nav-wrapper {
   display: flex;
   justify-content: center;
-  width: 600px;
+  width: 100%;
+  background: white;
   height: 75px;
-  border-radius: 30px;
+  box-shadow: 0 0 10px white;
   .nav-menu {
     color: lightgray;
     background: none !important;

@@ -2,17 +2,12 @@
   <div class="read-wrapper">
     <div class="journal-list" ref="listWrapper" v-if="ifShowList">
       <div class="list-column1 list-item">
-        <div
-          class="item"
-          v-for="(journal, index) in journalList1"
-          :key="index"
-          @click="toWatchJournal(journal)"
-        >
+        <div class="item" v-for="journal,index in journalList1" :key="index">
           <div class="item-tag">
             <div class="tag">{{ journal.tab }}</div>
             <div class="time">{{ journal.date }}</div>
           </div>
-          <div class="title">{{ journal.title }}</div>
+          <div class="title" @click="toWatchJournal(journal)">{{journal.title}}</div>
           <div class="pic"><img :src="journal.headPic" /></div>
           <div class="user">
             <div class="user-info">
@@ -21,31 +16,26 @@
               </div>
               <div class="name">{{ journal.userName }}</div>
             </div>
-            <div class="good">
-              <i
-                :class="[
-                  'el-icon-lollipop',
-                  ifGood ? 'selected-lolli' : 'normal-lolli',
-                ]"
-                @click="good"
-              ></i>
-              <span>1.2万</span>
+            <div class="user-action">
+              <div class="view">
+                <i class="el-icon-view"></i>
+                <span>{{journal.viewCount}}</span>
+              </div>
+              <div class="good">
+                <i :class="['el-icon-lollipop',starList.includes(journal.id) ? 'selected':'normal']" @click="good(journal)"></i>
+                <span>{{journal.starCount}}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div class="list-column2 list-item">
-        <div
-          class="item"
-          v-for="(journal, index) in journalList2"
-          :key="index"
-          @click="toWatchJournal(journal)"
-        >
+        <div class="item" v-for="journal,index in journalList2" :key="index">
           <div class="item-tag">
             <div class="tag">{{ journal.tab }}</div>
             <div class="time">{{ journal.date }}</div>
           </div>
-          <div class="title">{{ journal.title }}</div>
+          <div class="title" @click="toWatchJournal(journal)">{{journal.title}}</div>
           <div class="pic"><img :src="journal.headPic" /></div>
           <div class="user">
             <div class="user-info">
@@ -54,31 +44,26 @@
               </div>
               <div class="name">{{ journal.userName }}</div>
             </div>
-            <div class="good">
-              <i
-                :class="[
-                  'el-icon-lollipop',
-                  ifGood ? 'selected-lolli' : 'normal-lolli',
-                ]"
-                @click="good"
-              ></i>
-              <span>1.2万</span>
+            <div class="user-action">
+              <div class="view">
+                <i class="el-icon-view"></i>
+                <span>{{journal.viewCount}}</span>
+              </div>
+              <div class="good">
+                <i :class="['el-icon-lollipop',starList.includes(journal.id) ? 'selected':'normal']" @click="good(journal)"></i>
+                <span>{{journal.starCount}}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div class="list-column3 list-item">
-        <div
-          class="item"
-          v-for="(journal, index) in journalList3"
-          :key="index"
-          @click="toWatchJournal(journal)"
-        >
+        <div class="item" v-for="journal,index in journalList3" :key="index">
           <div class="item-tag">
             <div class="tag">{{ journal.tab }}</div>
             <div class="time">{{ journal.date }}</div>
           </div>
-          <div class="title">{{ journal.title }}</div>
+          <div class="title" @click="toWatchJournal(journal)">{{journal.title}}</div>
           <div class="pic"><img :src="journal.headPic" /></div>
           <div class="user">
             <div class="user-info">
@@ -87,15 +72,15 @@
               </div>
               <div class="name">{{ journal.userName }}</div>
             </div>
-            <div class="good">
-              <i
-                :class="[
-                  'el-icon-lollipop',
-                  ifGood ? 'selected-lolli' : 'normal-lolli',
-                ]"
-                @click="good"
-              ></i>
-              <span>1.2万</span>
+            <div class="user-action">
+              <div class="view">
+                <i class="el-icon-view"></i>
+                <span>{{journal.viewCount}}</span>
+              </div>
+              <div class="good">
+                <i :class="['el-icon-lollipop',starList.includes(journal.id) ? 'selected':'normal']" @click="good(journal)"></i>
+                <span>{{journal.starCount}}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -155,9 +140,13 @@ export default class extends Vue {
 
   public toWatchJournal(journal: any): void {
     // 查看游记
-    this.choosedJournal = journal;
-    window.removeEventListener("scroll", this.handleScroll, true);
-    this.ifShowList = false;
+    this.choosedJournal = journal
+    window.removeEventListener('scroll', this.handleScroll, true)
+    this.ifShowList = false
+    if (!this.viewList.includes(journal.id)) {
+      this.viewList.push(journal.id)
+      journal.viewCount += 1
+    }
   }
   public backToList(): void {
     // 返回游记列表
@@ -210,7 +199,18 @@ export default class extends Vue {
     window.addEventListener("scroll", this.handleScroll, true);
   }
   destroyed() {
-    window.removeEventListener("scroll", this.handleScroll, true);
+    window.removeEventListener('scroll', this.handleScroll, true)
+    if (this.viewList.length === 0 && this.starList.length === 0) {
+    } else {
+      ;(this as any).$journal
+        .post('/modifyJournal', {
+          viewList: this.viewList,
+          starList: this.starList,
+        })
+        .then((res: any) => {
+          console.log(res)
+        })
+    }
   }
 }
 </script>
@@ -235,11 +235,7 @@ export default class extends Vue {
         background: white;
         border-radius: 10px;
         border: 1px solid white;
-        cursor: pointer;
         box-shadow: 0 0 10px white;
-        &:hover {
-          opacity: 0.9;
-        }
         &:not(:nth-child(1)) {
           margin-top: 20px;
         }
@@ -252,7 +248,7 @@ export default class extends Vue {
             background: lightgreen;
             font-size: 17px;
             color: white;
-            width: 60px;
+            // width: 60px;
             height: 25px;
             text-align: center;
             line-height: 25px;
@@ -269,6 +265,10 @@ export default class extends Vue {
           color: gray;
           margin-left: 20px;
           margin-top: 15px;
+          cursor: pointer;
+          &:hover {
+            opacity: 0.6;
+          }
         }
         .pic {
           //   display: flex;
@@ -304,25 +304,40 @@ export default class extends Vue {
               margin-left: 10px;
             }
           }
-
-          .good {
-            i {
-              font-size: 21px;
-              cursor: pointer;
+          .user-action {
+            display: flex;
+            width: 35%;
+            justify-content: space-evenly;
+            .view {
+              i {
+                font-size: 21px;
+                color: gray;
+              }
+              span {
+                font-size: 17px;
+                color: gray;
+                margin-left: 5px;
+              }
             }
-            .normal-lolli {
-              color: gray;
-            }
-            .selected-lolli {
-              color: palevioletred;
-            }
-            i:hover {
-              color: palevioletred;
-            }
-            span {
-              font-size: 17px;
-              color: gray;
-              margin-left: 5px;
+            .good {
+              i {
+                font-size: 21px;
+                cursor: pointer;
+                &:hover {
+                  color: palevioletred;
+                }
+              }
+              .normal {
+                color: gray;
+              }
+              .selected {
+                color: palevioletred;
+              }
+              span {
+                font-size: 17px;
+                color: gray;
+                margin-left: 5px;
+              }
             }
           }
         }
