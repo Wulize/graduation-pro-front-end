@@ -18,6 +18,9 @@ class Http {
     this.instance.interceptors.request.use(
       (config: any) => {
         // 可以判断是否携带cookie以及cookie是否过期
+        if (config.url.startsWith("/yx")) {
+          config.baseURL = "http://localhost:2333";
+        }
         return config
       },
       (error: any) => {
