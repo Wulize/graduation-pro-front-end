@@ -2,12 +2,14 @@
   <div class="read-wrapper">
     <div class="journal-list" ref="listWrapper" v-if="ifShowList">
       <div class="list-column1 list-item">
-        <div class="item" v-for="journal,index in journalList1" :key="index">
+        <div class="item" v-for="(journal, index) in journalList1" :key="index">
           <div class="item-tag">
             <div class="tag">{{ journal.tab }}</div>
             <div class="time">{{ journal.date }}</div>
           </div>
-          <div class="title" @click="toWatchJournal(journal)">{{journal.title}}</div>
+          <div class="title" @click="toWatchJournal(journal)">
+            {{ journal.title }}
+          </div>
           <div class="pic"><img :src="journal.headPic" /></div>
           <div class="user">
             <div class="user-info">
@@ -19,23 +21,31 @@
             <div class="user-action">
               <div class="view">
                 <i class="el-icon-view"></i>
-                <span>{{journal.viewCount}}</span>
+                <span>{{ journal.viewCount }}</span>
               </div>
               <div class="good">
-                <i :class="['el-icon-lollipop',starList.includes(journal.id) ? 'selected':'normal']" @click="good(journal)"></i>
-                <span>{{journal.starCount}}</span>
+                <i
+                  :class="[
+                    'el-icon-lollipop',
+                    starList.includes(journal.id) ? 'selected' : 'normal',
+                  ]"
+                  @click="good(journal)"
+                ></i>
+                <span>{{ journal.starCount }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="list-column2 list-item">
-        <div class="item" v-for="journal,index in journalList2" :key="index">
+        <div class="item" v-for="(journal, index) in journalList2" :key="index">
           <div class="item-tag">
             <div class="tag">{{ journal.tab }}</div>
             <div class="time">{{ journal.date }}</div>
           </div>
-          <div class="title" @click="toWatchJournal(journal)">{{journal.title}}</div>
+          <div class="title" @click="toWatchJournal(journal)">
+            {{ journal.title }}
+          </div>
           <div class="pic"><img :src="journal.headPic" /></div>
           <div class="user">
             <div class="user-info">
@@ -47,23 +57,31 @@
             <div class="user-action">
               <div class="view">
                 <i class="el-icon-view"></i>
-                <span>{{journal.viewCount}}</span>
+                <span>{{ journal.viewCount }}</span>
               </div>
               <div class="good">
-                <i :class="['el-icon-lollipop',starList.includes(journal.id) ? 'selected':'normal']" @click="good(journal)"></i>
-                <span>{{journal.starCount}}</span>
+                <i
+                  :class="[
+                    'el-icon-lollipop',
+                    starList.includes(journal.id) ? 'selected' : 'normal',
+                  ]"
+                  @click="good(journal)"
+                ></i>
+                <span>{{ journal.starCount }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="list-column3 list-item">
-        <div class="item" v-for="journal,index in journalList3" :key="index">
+        <div class="item" v-for="(journal, index) in journalList3" :key="index">
           <div class="item-tag">
             <div class="tag">{{ journal.tab }}</div>
             <div class="time">{{ journal.date }}</div>
           </div>
-          <div class="title" @click="toWatchJournal(journal)">{{journal.title}}</div>
+          <div class="title" @click="toWatchJournal(journal)">
+            {{ journal.title }}
+          </div>
           <div class="pic"><img :src="journal.headPic" /></div>
           <div class="user">
             <div class="user-info">
@@ -75,11 +93,17 @@
             <div class="user-action">
               <div class="view">
                 <i class="el-icon-view"></i>
-                <span>{{journal.viewCount}}</span>
+                <span>{{ journal.viewCount }}</span>
               </div>
               <div class="good">
-                <i :class="['el-icon-lollipop',starList.includes(journal.id) ? 'selected':'normal']" @click="good(journal)"></i>
-                <span>{{journal.starCount}}</span>
+                <i
+                  :class="[
+                    'el-icon-lollipop',
+                    starList.includes(journal.id) ? 'selected' : 'normal',
+                  ]"
+                  @click="good(journal)"
+                ></i>
+                <span>{{ journal.starCount }}</span>
               </div>
             </div>
           </div>
@@ -120,9 +144,19 @@ export default class extends Vue {
   public timer: any = null; // 节流定时器
   public ifShowList: boolean = true; // 游记列表 or 某篇游记的查看
   public choosedJournal: any = {}; // 点击的游记
+  public viewList: string[] = []; // 用户浏览的游记列表
+  public starList: string[] = []; // 用户点赞的游记列表
 
-  public good(): void {
-    this.ifGood = !this.ifGood;
+  public good(journal: any): void {
+    // 用户点赞，将该游记加入到游记列表
+    if (this.starList.includes(journal.id)) {
+      const index = this.starList.indexOf(journal.id);
+      this.starList.splice(index, 1);
+      journal.starCount -= 1;
+    } else {
+      this.starList.push(journal.id);
+      journal.starCount += 1;
+    }
   }
 
   public handleScroll(): void {
@@ -140,12 +174,12 @@ export default class extends Vue {
 
   public toWatchJournal(journal: any): void {
     // 查看游记
-    this.choosedJournal = journal
-    window.removeEventListener('scroll', this.handleScroll, true)
-    this.ifShowList = false
+    this.choosedJournal = journal;
+    window.removeEventListener("scroll", this.handleScroll, true);
+    this.ifShowList = false;
     if (!this.viewList.includes(journal.id)) {
-      this.viewList.push(journal.id)
-      journal.viewCount += 1
+      this.viewList.push(journal.id);
+      journal.viewCount += 1;
     }
   }
   public backToList(): void {
@@ -199,17 +233,17 @@ export default class extends Vue {
     window.addEventListener("scroll", this.handleScroll, true);
   }
   destroyed() {
-    window.removeEventListener('scroll', this.handleScroll, true)
+    window.removeEventListener("scroll", this.handleScroll, true);
     if (this.viewList.length === 0 && this.starList.length === 0) {
     } else {
-      ;(this as any).$journal
-        .post('/modifyJournal', {
+      (this as any).$http
+        .post("/yx/modifyJournal", {
           viewList: this.viewList,
           starList: this.starList,
         })
         .then((res: any) => {
-          console.log(res)
-        })
+          console.log(res);
+        });
     }
   }
 }
@@ -222,15 +256,11 @@ export default class extends Vue {
   // height: 100%;
   .journal-list {
     width: 100%;
-    // height: 210vh;
-    // overflow: auto;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     .list-item {
       width: 350px;
-      //   height: 200px;
-      // background: rgba($color: white, $alpha: 0.7);
       .item {
         background: white;
         border-radius: 10px;
