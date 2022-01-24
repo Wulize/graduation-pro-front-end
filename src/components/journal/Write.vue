@@ -144,44 +144,73 @@ export default class extends Vue {
           // 上传游记
           const pattern: any = /src=["](.+?)["]/g
           let preSrc: any = html.match(pattern) // 正则获取游记中img标签的src
-          for (let i = 0; i < preSrc.length; i++) {
-            preSrc[i] = preSrc[i].replace('src=', '')
-            preSrc[i] = preSrc[i].replaceAll('"', '')
-          }
-          let newSrc: any = []
-          for (let i = 0; i < preSrc.length; i++) {
-            // 压缩src并替换原html串
-            press(preSrc[i], 3)
-              .then((result: any) => {
-                newSrc.push(result)
-                html = html.replace(preSrc[i], newSrc[i])
-                if (i === preSrc.length - 1) {
-                  ;(this as any).$journal //  替换完后上传游记
-                    .post('/uploadJournal', {
-                      userName: this.userName,
-                      headPic: this.imageUrl,
-                      title: this.title,
-                      tab: this.tab,
-                      content: html,
-                      viewAmount: 0
-                    })
-                    .then((res: any) => {
-                      console.log(res)
-                      this.$message({
-                        showClose: true,
-                        message: '插入游记成功！快去查看你的大作吧！',
-                        type: 'success',
+          if (preSrc === null) {
+            ;(this as any).$journal 
+              .post('/uploadJournal', {
+                id: Date.now(),
+                userName: this.userName,
+                headPic: this.imageUrl,
+                title: this.title,
+                tab: this.tab,
+                content: html,
+                viewCount: 0,
+                starCount: 0,
+              })
+              .then((res: any) => {
+                console.log(res)
+                this.$message({
+                  showClose: true,
+                  message: '插入游记成功！快去查看你的大作吧！',
+                  type: 'success',
+                })
+                editor.txt.clear()
+                this.title = ''
+                this.tab = ''
+                this.imageUrl = ''
+              })
+          } else {
+            for (let i = 0; i < preSrc.length; i++) {
+              preSrc[i] = preSrc[i].replace('src=', '')
+              preSrc[i] = preSrc[i].replaceAll('"', '')
+            }
+            let newSrc: any = []
+            for (let i = 0; i < preSrc.length; i++) {
+              // 压缩src并替换原html串
+              press(preSrc[i], 3)
+                .then((result: any) => {
+                  newSrc.push(result)
+                  html = html.replace(preSrc[i], newSrc[i])
+                  if (i === preSrc.length - 1) {
+                    console.log(html)
+                    ;(this as any).$journal //  替换完后上传游记
+                      .post('/uploadJournal', {
+                        id: Date.now() + result[8],
+                        userName: this.userName,
+                        headPic: this.imageUrl,
+                        title: this.title,
+                        tab: this.tab,
+                        content: html,
+                        viewCount: 0,
+                        starCount: 0,
                       })
-                      editor.txt.clear()
-                      this.title = ''
-                      this.tab = ''
-                      this.imageUrl = ''
-                    })
-                }
-              })
-              .catch((err) => {
-                console.log(err)
-              })
+                      .then((res: any) => {
+                        console.log(res)
+                        this.$message({
+                          showClose: true,
+                          message: '插入游记成功！快去查看你的大作吧！',
+                          type: 'success',
+                        })
+                        editor.txt.clear()
+                        this.title = ''
+                        this.tab = ''
+                        this.imageUrl = ''
+                      })
+                  }
+                })
+                .catch((err) => {
+                  console.log(err)
+                })
+            }
           }
         }
       }
