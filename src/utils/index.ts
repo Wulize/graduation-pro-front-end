@@ -1,3 +1,3 @@
 import Http from './http';
-
-export default Http
+import { blobToBase64, base64ToBlob } from './blobToBase64'
+export { Http, blobToBase64, base64ToBlob }

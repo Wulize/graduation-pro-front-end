@@ -66,8 +66,11 @@ export default class Login extends Vue {
               type: "success",
             });
             this.$store.state.userName = this.loginInfo.userName;
-            this.$router.push("/home");
+            const avatarUrl = this.loginInfo.avatarUrl || "";
+            sessionStorage.setItem("userName", ifLogin.userName);
+            sessionStorage.setItem("avatarUrl", avatarUrl);
             sessionStorage.setItem("userName", this.loginInfo.userName);
+            this.$router.push("/home");
           } else {
             this.$message({
               showClose: true,
@@ -78,8 +81,30 @@ export default class Login extends Vue {
         });
     }
   }
-  mounted() {
+  public mounted() {
     this.$store.state.showNav = false;
+  }
+  public created() {
+    (this as any).$http.get("/users/login", {}).then((ifLogin: any) => {
+      if (ifLogin.status === 1) {
+        this.$message({
+          showClose: true,
+          message: "登录成功！快来定制你的旅游计划吧！",
+          type: "success",
+        });
+        this.$store.state.userName = ifLogin.userName;
+        const avatarUrl = ifLogin.avatarUrl || "";
+        sessionStorage.setItem("userName", ifLogin.userName);
+        sessionStorage.setItem("avatarUrl", avatarUrl);
+        this.$router.push("/home");
+      } else {
+        this.$message({
+          showClose: true,
+          message: "请先登录！",
+          type: "error",
+        });
+      }
+    });
   }
 }
 </script>
@@ -90,7 +115,7 @@ export default class Login extends Vue {
   height: 100vh;
   background-image: url("../assets/images/login/login01.jpg");
   background-size: cover;
-  // position: relative;
+  position: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -101,7 +126,6 @@ export default class Login extends Vue {
     min-height: 250px;
     position: relative;
     background: white;
-    // border: 2px solid black;
     display: flex;
     flex-direction: column;
     justify-content: center;
