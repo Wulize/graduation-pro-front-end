@@ -4,15 +4,17 @@
       <div class="list-column1 list-item">
         <div class="item" v-for="journal,index in journalList1" :key="index">
           <div class="item-tag">
-            <div class="tag">{{journal.tab}}</div>
-            <div class="time">{{journal.date}}</div>
+            <div class="tag">{{ journal.tab }}</div>
+            <div class="time">{{ journal.date }}</div>
           </div>
           <div class="title" @click="toWatchJournal(journal)">{{journal.title}}</div>
           <div class="pic"><img :src="journal.headPic" /></div>
           <div class="user">
             <div class="user-info">
-              <div class="avatar"><img src="~@/assets/images/home/home03.jpg" /></div>
-              <div class="name">{{journal.userName}}</div>
+              <div class="avatar">
+                <img src="~@/assets/images/home/home03.jpg" />
+              </div>
+              <div class="name">{{ journal.userName }}</div>
             </div>
             <div class="user-action">
               <div class="view">
@@ -30,15 +32,17 @@
       <div class="list-column2 list-item">
         <div class="item" v-for="journal,index in journalList2" :key="index">
           <div class="item-tag">
-            <div class="tag">{{journal.tab}}</div>
-            <div class="time">{{journal.date}}</div>
+            <div class="tag">{{ journal.tab }}</div>
+            <div class="time">{{ journal.date }}</div>
           </div>
           <div class="title" @click="toWatchJournal(journal)">{{journal.title}}</div>
           <div class="pic"><img :src="journal.headPic" /></div>
           <div class="user">
             <div class="user-info">
-              <div class="avatar"><img src="~@/assets/images/home/home03.jpg" /></div>
-              <div class="name">{{journal.userName}}</div>
+              <div class="avatar">
+                <img src="~@/assets/images/home/home03.jpg" />
+              </div>
+              <div class="name">{{ journal.userName }}</div>
             </div>
             <div class="user-action">
               <div class="view">
@@ -56,15 +60,17 @@
       <div class="list-column3 list-item">
         <div class="item" v-for="journal,index in journalList3" :key="index">
           <div class="item-tag">
-            <div class="tag">{{journal.tab}}</div>
-            <div class="time">{{journal.date}}</div>
+            <div class="tag">{{ journal.tab }}</div>
+            <div class="time">{{ journal.date }}</div>
           </div>
           <div class="title" @click="toWatchJournal(journal)">{{journal.title}}</div>
           <div class="pic"><img :src="journal.headPic" /></div>
           <div class="user">
             <div class="user-info">
-              <div class="avatar"><img src="~@/assets/images/home/home03.jpg" /></div>
-              <div class="name">{{journal.userName}}</div>
+              <div class="avatar">
+                <img src="~@/assets/images/home/home03.jpg" />
+              </div>
+              <div class="name">{{ journal.userName }}</div>
             </div>
             <div class="user-action">
               <div class="view">
@@ -84,60 +90,52 @@
       <div class="head-pic">
         <img :src="choosedJournal.headPic" />
         <div class="title-part">
-          <div class="title">{{choosedJournal.title}}</div>
-          <div class="author">by {{choosedJournal.userName}}</div>
+          <div class="title">{{ choosedJournal.title }}</div>
+          <div class="author">by {{ choosedJournal.userName }}</div>
         </div>
         <div class="back-btn">
-          <el-button type="plain" icon="el-icon-back" @click="backToList"></el-button>
+          <el-button
+            type="plain"
+            icon="el-icon-back"
+            @click="backToList"
+          ></el-button>
         </div>
       </div>
       <div class="hide-scroll">
-        <div class="content" v-html="choosedJournal.content">
-        </div>
+        <div class="content" v-html="choosedJournal.content"></div>
       </div>
-
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue } from "vue-property-decorator";
 @Component({})
 export default class extends Vue {
-  public ifGood: boolean = false // 控制读写切换
-  public currentPage: number = 1 // 当前页码
-  public journalList1: any[] = [] // 游记列表1
-  public journalList2: any[] = [] // 游记列表2
-  public journalList3: any[] = [] // 游记列表3
-  public timer: any = null // 节流定时器
-  public ifShowList: boolean = true // 游记列表 or 某篇游记的查看
-  public choosedJournal: any = {} // 点击的游记
-  public viewList: string[] = [] // 用户浏览的游记列表
-  public starList: string[] = [] // 用户点赞的游记列表
+  public ifGood: boolean = false; // 控制读写切换
+  public currentPage: number = 1; // 当前页码
+  public journalList1: any[] = []; // 游记列表1
+  public journalList2: any[] = []; // 游记列表2
+  public journalList3: any[] = []; // 游记列表3
+  public timer: any = null; // 节流定时器
+  public ifShowList: boolean = true; // 游记列表 or 某篇游记的查看
+  public choosedJournal: any = {}; // 点击的游记
 
-  public good(journal: any): void {
-    // 用户点赞，将该游记加入到游记列表
-    if (this.starList.includes(journal.id)) {
-      let index = this.starList.indexOf(journal.id)
-      this.starList.splice(index, 1)
-      journal.starCount -= 1
-    } else {
-      this.starList.push(journal.id)
-      journal.starCount += 1
-    }
+  public good(): void {
+    this.ifGood = !this.ifGood;
   }
 
   public handleScroll(): void {
     // 监听滚动事件
-    clearTimeout(this.timer)
+    clearTimeout(this.timer);
     this.timer = setTimeout(() => {
-      const scrollHeight = document.documentElement.scrollHeight
-      const clientHeight = document.documentElement.clientHeight
-      const scrollTop = document.documentElement.scrollTop
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      const scrollTop = document.documentElement.scrollTop;
       if (clientHeight + scrollTop === scrollHeight) {
-        this.getJournal()
+        this.getJournal();
       }
-    }, 500)
+    }, 500);
   }
 
   public toWatchJournal(journal: any): void {
@@ -152,53 +150,53 @@ export default class extends Vue {
   }
   public backToList(): void {
     // 返回游记列表
-    this.ifShowList = true
-    window.addEventListener('scroll', this.handleScroll, true)
+    this.ifShowList = true;
+    window.addEventListener("scroll", this.handleScroll, true);
   }
   public getJournal(): void {
     // 获取游记
-    ;(this as any).$journal
-      .get('/getJournal', {
+    (this as any).$http
+      .get("/yx/getJournal", {
         currentPage: this.currentPage,
       })
       .then((data: any) => {
         if (data.journalList.length === 0) {
           this.$message({
             showClose: true,
-            message: '没有更多游记了哦！',
-            type: 'warning',
-          })
-          window.removeEventListener('scroll', this.handleScroll, true)
+            message: "没有更多游记了哦！",
+            type: "warning",
+          });
+          window.removeEventListener("scroll", this.handleScroll, true);
         } else {
-          let journalList = data.journalList
-          let index = 1
-          for (let i = 0; i < journalList.length; i++) {
+          const journalList = data.journalList;
+          let index = 1;
+          for (const value of journalList.length) {
             if (index === 1) {
-              this.journalList1.push(journalList[i])
-              index++
+              this.journalList1.push(value);
+              index++;
             } else if (index === 2) {
-              this.journalList2.push(journalList[i])
-              index++
+              this.journalList2.push(value);
+              index++;
             } else {
-              this.journalList3.push(journalList[i])
-              index = 1
+              this.journalList3.push(value);
+              index = 1;
             }
           }
-          this.currentPage += 1
-          console.log(data.journalList)
+          this.currentPage += 1;
+          console.log(data.journalList);
         }
       })
       .catch((err: any) => {
-        console.log(err)
-      })
+        console.log(err);
+      });
   }
 
   mounted() {
-    this.getJournal()
+    this.getJournal();
   }
 
   created() {
-    window.addEventListener('scroll', this.handleScroll, true)
+    window.addEventListener("scroll", this.handleScroll, true);
   }
   destroyed() {
     window.removeEventListener('scroll', this.handleScroll, true)

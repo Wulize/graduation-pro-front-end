@@ -5,14 +5,10 @@ import store from './store'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import { Http, base64ToBlob } from '@/utils/index'
-import GetSight from '@/utils/sight'
-import Journal from '@/utils/journal'
 import AmapVue from '@amap/amap-vue';
 
 Vue.config.productionTip = false
 Vue.prototype.$http = new Http()
-Vue.prototype.$getSight = new GetSight()
-Vue.prototype.$journal = new Journal()
 Vue.prototype.base64ToBlob = base64ToBlob;
 Vue.prototype.createObjectURL = window.URL.createObjectURL;
 
