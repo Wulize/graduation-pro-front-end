@@ -138,6 +138,9 @@
           <div @mousedown="startRecord" @mouseup="stopRecord">
             <el-avatar :src="avatarUrl[5]" title="发送语音"></el-avatar>
           </div>
+          <div @mousedown="startVideo">
+            <el-avatar :src="avatarUrl[6]" title="视频通话"></el-avatar>
+          </div>
         </div>
         <!-- 添加输入内容 -->
         <el-input
@@ -176,6 +179,16 @@
       :auto-upload="false"
     >
     </el-upload>
+    <videoCall
+      v-show="isVideo"
+      class="video"
+      @answer="handleAnswer"
+      @offer="handleOffer"
+      @offer_ice="handleOfferIce"
+      @answer_ice="handleAnswerIce"
+      @cancle="stopVideo"
+      :msg="videoMsg"
+    ></videoCall>
   </div>
 </template>
 
@@ -184,12 +197,17 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import addfriend from "../components/Intercourse/addfriend.vue";
 import editMyInfo from "../components/Intercourse/personalInfo.vue";
 import pictureBoost from "../components/Intercourse/picture-boost.vue";
+import videoCall from "../components/Intercourse/videoCall.vue";
 import Recorderx, { ENCODE_TYPE } from "recorderx";
-import { blobToBase64 } from "@/utils/index";
+import { blobToBase64, eventBus } from "@/utils/index";
 @Component({
-  components: { addfriend, editMyInfo, pictureBoost },
+  components: { addfriend, editMyInfo, pictureBoost, videoCall },
 })
 export default class Intercourse extends Vue {
+  // 视频通话组件的属性
+  public videoMsg: any = {};
+  // 是否视频通话
+  public isVideo: boolean = false;
   // 正在播放的节点
   public brocastNode: any;
   public rc: any = new Recorderx();
@@ -223,7 +241,7 @@ export default class Intercourse extends Vue {
   public value: string = "";
   // 发送的消息
   public inputValue: string = "";
-  public path: string = "ws://localhost:3001?id=";
+  public path: string = "ws://192.168.31.82:3001?id=";
   public socket: any = {};
   // 在线好友
   public onlineFriend: string[] = [];
@@ -235,6 +253,7 @@ export default class Intercourse extends Vue {
     `${require("@/assets/images/chat/photo.svg")}`,
     `${require("@/assets/images/chat/file.svg")}`,
     `${require("@/assets/images/chat/voice.svg")}`,
+    `${require("@/assets/images/chat/video_call.svg")}`,
   ];
   // 当前好友的聊天记录
   public msgList: any[] = [];
@@ -407,6 +426,14 @@ export default class Intercourse extends Vue {
             );
             this.chooseReciever(index);
           }
+        }
+        // 视频通话协商
+        else {
+          // this.videoMsg = data.send_msg;
+          console.log("父组件收到消息");
+          this.isVideo = true;
+          data.send_msg.send_name = data.send_name;
+          eventBus.$emit("msgReceive", data.send_msg);
         }
       };
     }
@@ -737,6 +764,64 @@ export default class Intercourse extends Vue {
         "animation: none";
       this.brocastNode = undefined;
     }
+  }
+
+  /* 新增视频通话功能 ---- 2022/4/24*/
+  // 开始视频通话
+  public startVideo() {
+    this.isVideo = true;
+  }
+  // 结束视频通话
+  public stopVideo() {
+    this.isVideo = false;
+  }
+  // 处理answer
+  public handleAnswer(answer: any) {
+    const info = {
+      type: "answer",
+      send_time: new Date().toLocaleString(),
+      send_msg: answer,
+      send_id: this.userName,
+      send_name: this.userName,
+      receiver: this.id,
+    };
+    this.send(JSON.stringify(info));
+  }
+  // 处理offer
+  public handleOffer(offer: any) {
+    const info = {
+      type: "offer",
+      send_time: new Date().toLocaleString(),
+      send_msg: offer,
+      send_id: this.userName,
+      send_name: this.userName,
+      receiver: this.id,
+    };
+    this.send(JSON.stringify(info));
+  }
+  // 处理offer
+  public handleOfferIce(offer_ice: any) {
+    const info = {
+      type: "offer_ice",
+      send_time: new Date().toLocaleString(),
+      send_msg: offer_ice,
+      send_id: this.userName,
+      send_name: this.userName,
+      receiver: this.id,
+    };
+    this.send(JSON.stringify(info));
+  }
+  // 处理offer
+  public handleAnswerIce(answer_ice: any) {
+    const info = {
+      type: "answer_ice",
+      send_time: new Date().toLocaleString(),
+      send_msg: answer_ice,
+      send_id: this.userName,
+      send_name: this.userName,
+      receiver: this.id,
+    };
+    this.send(JSON.stringify(info));
   }
 }
 </script>
@@ -1086,6 +1171,12 @@ export default class Intercourse extends Vue {
         background: #999;
       }
     }
+  }
+  .video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
   }
 }
 </style>

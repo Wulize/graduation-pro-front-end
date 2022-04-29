@@ -4,7 +4,7 @@ import router from './router'
 import store from './store'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import { Http, base64ToBlob } from '@/utils/index'
+import { Http, base64ToBlob, eventBus } from '@/utils/index'
 import AmapVue from '@amap/amap-vue';
 
 Vue.config.productionTip = false

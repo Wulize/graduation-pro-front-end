@@ -16,13 +16,20 @@
             v-for="item in options"
             :key="item.value"
             :label="item.label"
-            :value="item.value"
+            :value="{ val: item.label, label: item.value }"
           >
           </el-option>
         </el-select>
       </div>
       <div class="search-result">
-        <div class="res">搜索结果：{{ value }}</div>
+        <div class="res">
+          搜索结果：{{ value.val }}
+          <el-avatar
+            v-if="value.label"
+            :src="value.label"
+            shape="square"
+          ></el-avatar>
+        </div>
         <div class="message">
           验证信息：<el-input
             type="textarea"
@@ -48,19 +55,11 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 export default class AddFriend extends Vue {
   @Prop() public isShow: boolean = false;
   public options: any[] = [];
-  public value: string = "";
+  public value: any = {};
   public list: any[] = [];
   public loading: boolean = false;
   public friend: string = "";
   public textarea: string = "";
-  // 服务器返回的匹配数据
-  public result: string[] = [];
-  // mouted 事件
-  public mounted() {
-    this.list = this.result.map((item) => {
-      return { value: `value:${item}`, label: `label:${item}` };
-    });
-  }
   // 查找事件
   public remoteMethod(query: string) {
     if (query !== "") {
@@ -73,28 +72,38 @@ export default class AddFriend extends Vue {
         .then((res: any) => {
           (res.friends || []).forEach((element: any) => {
             this.options.push({
-              value: element.userName,
+              value: element.avatarUrl,
               label: element.userName,
             });
           });
           this.loading = false;
+          console.log(this.options);
         });
     }
   }
   // 取消按钮
   public cancle() {
     this.$emit("cancle");
+    this.value = {};
+    this.options = [];
+    this.textarea = "";
   }
   public confirm() {
-    if (!this.value) {
+    if (!this.value.val) {
       alert("请选择一名用户");
+      this.value = {};
+      this.options = [];
+      this.textarea = "";
       return;
     }
     this.$emit("confirm", {
-      receiver: this.value,
+      receiver: this.value.val,
       send_msg: this.textarea,
       type: "add",
     });
+    this.value = {};
+    this.options = [];
+    this.textarea = "";
   }
 }
 </script>
@@ -108,6 +117,7 @@ export default class AddFriend extends Vue {
   // display: none;
 }
 .addfriend {
+  border-radius: 1.5rem;
   z-index: 2;
   width: 450px;
   height: 400px;
@@ -125,6 +135,10 @@ export default class AddFriend extends Vue {
     margin-left: 10px;
     height: 50px;
     margin-top: 10px;
+    .el-select .el-input .el-input__inner {
+      border-color: #a1a1a1;
+      border-radius: 1rem;
+    }
   }
   .search-result {
     height: 280px;
@@ -134,6 +148,12 @@ export default class AddFriend extends Vue {
     align-items: flex-start;
     .res {
       margin-top: 15px;
+      line-height: 60px;
+      display: flex;
+      align-items: center;
+      .el-avatar {
+        margin: 0 2rem;
+      }
     }
     .message {
       margin-top: 20px;
