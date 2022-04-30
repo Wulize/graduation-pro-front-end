@@ -184,8 +184,8 @@
       class="video"
       @answer="handleAnswer"
       @offer="handleOffer"
-      @offer_ice="handleOfferIce"
-      @answer_ice="handleAnswerIce"
+      @offerIce="handleOfferIce"
+      @answerIce="handleAnswerIce"
       @cancle="stopVideo"
       :msg="videoMsg"
     ></videoCall>
@@ -241,7 +241,7 @@ export default class Intercourse extends Vue {
   public value: string = "";
   // 发送的消息
   public inputValue: string = "";
-  public path: string = "ws://192.168.31.82:3001?id=";
+  public path: string = "ws://192.168.0.147:3001?id=";
   public socket: any = {};
   // 在线好友
   public onlineFriend: string[] = [];
@@ -429,9 +429,7 @@ export default class Intercourse extends Vue {
         }
         // 视频通话协商
         else {
-          // this.videoMsg = data.send_msg;
-          console.log("父组件收到消息");
-          this.isVideo = true;
+          if (data.type === "offer") this.isVideo = true;
           data.send_msg.send_name = data.send_name;
           eventBus.$emit("msgReceive", data.send_msg);
         }
@@ -559,16 +557,13 @@ export default class Intercourse extends Vue {
   }
   // 关闭编辑信息弹窗
   public closeEditInfo() {
-    console.log("组件关闭");
     this.editInfoShow = false;
   }
   // 打开编辑信息弹窗
   public openEditInfo() {
-    console.log("组件打开");
     this.editInfoShow = true;
   }
   public sendPic() {
-    console.log("点击发送图片");
     // console.log(this.$refs.upload);
 
     (this.$refs.upload as any).$children[1].$refs.input.click();
@@ -755,7 +750,6 @@ export default class Intercourse extends Vue {
   }
   // 音频播放结束
   public onBroadcastEnd(event: any) {
-    console.log("音频播放结束");
     // 播放结束就不记录当前节点，另其值等于undefined
     if (this.brocastNode === event.path[1].children[1]) {
       this.brocastNode.parentElement.children[0].children[1].style.cssText =
@@ -800,11 +794,11 @@ export default class Intercourse extends Vue {
     this.send(JSON.stringify(info));
   }
   // 处理offer
-  public handleOfferIce(offer_ice: any) {
+  public handleOfferIce(offerIce: any) {
     const info = {
-      type: "offer_ice",
+      type: "offerIce",
       send_time: new Date().toLocaleString(),
-      send_msg: offer_ice,
+      send_msg: offerIce,
       send_id: this.userName,
       send_name: this.userName,
       receiver: this.id,
@@ -812,11 +806,11 @@ export default class Intercourse extends Vue {
     this.send(JSON.stringify(info));
   }
   // 处理offer
-  public handleAnswerIce(answer_ice: any) {
+  public handleAnswerIce(answerIce: any) {
     const info = {
-      type: "answer_ice",
+      type: "answerIce",
       send_time: new Date().toLocaleString(),
-      send_msg: answer_ice,
+      send_msg: answerIce,
       send_id: this.userName,
       send_name: this.userName,
       receiver: this.id,

@@ -1,11 +1,19 @@
 <template>
-  <div class="video-call">
+  <div class="video-call" :key="timer">
     <div class="video-box">
       <span class="cancle" @click="cancle">×</span>
       <video ref="remoteVideo" id="remote-video"></video>
       <video ref="localVideo" id="local-video" muted></video>
-      <button ref="startButton" class="start-button" @click="startLive">
-        start
+      <button
+        v-if="!iscommunicating"
+        ref="startButton"
+        class="start-button"
+        @click="startButtonClick"
+      >
+        发起通话
+      </button>
+      <button v-if="iscommunicating" class="end-button" @click="endButtonClick">
+        结束通话
       </button>
     </div>
   </div>
@@ -17,16 +25,20 @@ import { eventBus } from "@/utils/index";
   components: {},
 })
 export default class Intercourse extends Vue {
+  // timer更新让组件重新加载
+  public timer: number = 0;
+  // 是否正在通话
+  public iscommunicating: boolean = false;
+  // 是否接听
+  public isAccept: boolean = false;
+  // ice信息数组
+  public iceArr: any[] = [];
   public localVideo: any = {};
   public remoteVideo: any = {};
   public button: any = {};
   public PeerConnection: any = {};
   public peer: any = {};
-  //   msg用于接收父组件经过websocket协议收到的数据
-  // @Prop() public msg: any = {};
-  // @Watch("msg")
   public handleMsg(val: any) {
-    console.log("子组件收到视频消息", val);
     const { type, sdp, iceCandidate, send_name } = val;
     if (type === "offer") {
       this.$confirm(`来自${send_name}视频通话`, {
@@ -34,19 +46,28 @@ export default class Intercourse extends Vue {
         cancelButtonText: "挂断",
         type: "warning",
       })
-        .then(() => {
-          this.startLive(new RTCSessionDescription({ type, sdp }));
+        .then(async () => {
+          this.isAccept = true;
+          this.iscommunicating = true;
+          await this.startLive(new RTCSessionDescription({ type, sdp }));
+          this.$emit("offer", { type: "accept", result: "true" });
         })
         .catch(() => {
           return;
         });
-    } else if (type === "offer_ice") {
+    } else if (type === "offerIce") {
       this.peer.addIceCandidate(iceCandidate);
     } else if (type === "answer") {
       // 收到answer怎么进行处理
       this.peer.setRemoteDescription(new RTCSessionDescription({ type, sdp }));
-    } else if (type === "answer_ice") {
+    } else if (type === "answerIce") {
       this.peer.addIceCandidate(iceCandidate);
+    } else if (type === "accept") {
+      this.isAccept = true;
+      this.iceArr.forEach((item) => {
+        this.$emit("offerIce", item);
+      });
+      this.iscommunicating = true;
     }
   }
   public init() {
@@ -66,25 +87,33 @@ export default class Intercourse extends Vue {
         (this.remoteVideo as any).srcObject = e.streams[0];
       }
     };
-
+    // 产生自身的ice信息，然后发送往对方浏览器
     this.peer.onicecandidate = (e: any) => {
-      if (e.candidate) {
+      // 已经接听
+      if (this.isAccept && e.candidate) {
         const info = {
-          type: "offer_ice",
+          type: "offerIce",
           iceCandidate: e.candidate,
         };
-        this.$emit("offer", info);
+        this.$emit("offerIce", info);
+      } else {
+        if (e.candidate) {
+          const info = {
+            type: "offerIce",
+            iceCandidate: e.candidate,
+          };
+          this.iceArr.push(info);
+        }
       }
     };
   }
   public mounted() {
-    this.init();
-    console.log("组件挂载");
     eventBus.$on("msgReceive", (msg: any) => {
       this.handleMsg(msg);
     });
   }
   public async startLive(offerSdp: any) {
+    this.init();
     let stream: any;
     try {
       //  拿到本地媒体流（MediaStream）后，需要将其中所有媒体轨道（MediaStreamTrack）添加到轨道集
@@ -125,13 +154,30 @@ export default class Intercourse extends Vue {
       //   socket.send(JSON.stringify(answer));
       this.$emit("answer", answer);
       await this.peer.setLocalDescription(answer);
-      console.log("返回answer");
     }
   }
 
   //   关闭视频通话
   public cancle() {
+    // 关闭摄像头
+    this.endButtonClick();
+  }
+  // 点击视频通话关闭按钮
+  public endButtonClick() {
+    // 关闭摄像头
+    const srcObject = (this.localVideo as any).srcObject;
+    const tracks = srcObject ? srcObject.getTracks() : [];
+    for (let i = 0; i < tracks.length; i++) {
+      tracks[i].stop();
+    }
+    this.iscommunicating = false;
+    this.timer++;
     this.$emit("cancle");
+  }
+  // 点击视频通话开始按钮
+  public startButtonClick(e: any) {
+    this.isAccept = false;
+    this.startLive(e);
   }
 }
 </script>
@@ -179,11 +225,24 @@ export default class Intercourse extends Vue {
     left: 50%;
     top: 50%;
     width: 100px;
-    // display: none;
     line-height: 40px;
     outline: none;
     color: #fff;
     background-color: #409eff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+  }
+  .end-button {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 100px;
+    line-height: 40px;
+    outline: none;
+    color: rgb(255, 255, 255);
+    background-color: #d91616;
     border: none;
     border-radius: 4px;
     cursor: pointer;
