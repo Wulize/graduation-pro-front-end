@@ -68,6 +68,21 @@ export default class Intercourse extends Vue {
         this.$emit("offerIce", item);
       });
       this.iscommunicating = true;
+    } else if (type === "vedioend") {
+      const srcObject = (this.localVideo as any).srcObject;
+      const tracks = srcObject ? srcObject.getTracks() : [];
+      for (let i = 0; i < tracks.length; i++) {
+        tracks[i].stop();
+      }
+      this.iscommunicating = false;
+      this.timer++;
+      this.$emit("cancle", {});
+    } else {
+      this.$message({
+        showClose: true,
+        message: "对方正忙，请稍后再试",
+        type: "warning",
+      });
     }
   }
   public init() {
@@ -172,7 +187,14 @@ export default class Intercourse extends Vue {
     }
     this.iscommunicating = false;
     this.timer++;
-    this.$emit("cancle");
+    const info = {
+      type: "answer",
+      send_time: new Date().toLocaleString(),
+      send_msg: {
+        type: "vedioend",
+      },
+    };
+    this.$emit("cancle", info);
   }
   // 点击视频通话开始按钮
   public startButtonClick(e: any) {

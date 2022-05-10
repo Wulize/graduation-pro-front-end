@@ -33,9 +33,7 @@
         <div class="message">
           验证信息：<el-input
             type="textarea"
-            :rows="2"
-            maxlength="250"
-            show-word-limit
+            :rows="5"
             placeholder="请输入内容"
             v-model="textarea"
           >
@@ -114,7 +112,6 @@ export default class AddFriend extends Vue {
   height: 100%;
   background: rgba(200, 200, 200, 0.6);
   z-index: 1;
-  // display: none;
 }
 .addfriend {
   border-radius: 1.5rem;
@@ -132,9 +129,9 @@ export default class AddFriend extends Vue {
     display: flex;
     flex-direction: flex-start;
     align-items: center;
-    margin-left: 10px;
+    margin-left: 40px;
     height: 50px;
-    margin-top: 10px;
+    margin-top: 15px;
     .el-select .el-input .el-input__inner {
       border-color: #a1a1a1;
       border-radius: 1rem;
@@ -144,10 +141,10 @@ export default class AddFriend extends Vue {
     height: 280px;
     display: flex;
     flex-direction: column;
-    margin-left: 10px;
+    margin-left: 40px;
     align-items: flex-start;
     .res {
-      margin-top: 15px;
+      margin-top: 5px;
       line-height: 60px;
       display: flex;
       align-items: center;
@@ -156,14 +153,14 @@ export default class AddFriend extends Vue {
       }
     }
     .message {
-      margin-top: 20px;
+      margin-top: 10px;
       display: flex;
       flex-direction: column;
-      width: 425px;
+      width: 360px;
       height: 149px;
       .el-textarea__inner {
         margin-top: 20px;
-        height: 120px;
+        resize: none;
       }
     }
   }

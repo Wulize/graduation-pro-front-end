@@ -182,6 +182,7 @@
     <videoCall
       v-show="isVideo"
       class="video"
+      ref="child"
       @answer="handleAnswer"
       @offer="handleOffer"
       @offerIce="handleOfferIce"
@@ -241,7 +242,7 @@ export default class Intercourse extends Vue {
   public value: string = "";
   // 发送的消息
   public inputValue: string = "";
-  public path: string = "ws://192.168.0.147:3001?id=";
+  public path: string = "ws://192.168.1.106:3001?id=";
   public socket: any = {};
   // 在线好友
   public onlineFriend: string[] = [];
@@ -429,7 +430,25 @@ export default class Intercourse extends Vue {
         }
         // 视频通话协商
         else {
-          if (data.type === "offer") this.isVideo = true;
+          if (data.send_msg.type === "offer" && !this.isVideo)
+            this.isVideo = true;
+          // 视频通话过程中，返回“对方正忙”
+          else if (data.send_msg.type === "offer" && this.isVideo) {
+            this.send(
+              JSON.stringify({
+                type: "vedioBusy",
+                send_time: new Date().toLocaleString(),
+                send_msg: {
+                  type: "vedioBusy",
+                  info: "对方正忙！",
+                },
+                send_id: this.userName,
+                send_name: this.userName,
+                receiver: data.send_name,
+              })
+            );
+            return;
+          }
           data.send_msg.send_name = data.send_name;
           eventBus.$emit("msgReceive", data.send_msg);
         }
@@ -766,7 +785,13 @@ export default class Intercourse extends Vue {
     this.isVideo = true;
   }
   // 结束视频通话
-  public stopVideo() {
+  public stopVideo(info: any) {
+    if (info.type === "answer") {
+      info.send_id = this.userName;
+      info.send_name = this.userName;
+      info.receiver = this.id;
+      this.send(JSON.stringify(info));
+    }
     this.isVideo = false;
   }
   // 处理answer
@@ -793,7 +818,7 @@ export default class Intercourse extends Vue {
     };
     this.send(JSON.stringify(info));
   }
-  // 处理offer
+  // 处理offerIce 信息
   public handleOfferIce(offerIce: any) {
     const info = {
       type: "offerIce",
@@ -844,6 +869,7 @@ export default class Intercourse extends Vue {
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
         p {
           margin: 0 0 0 10px;
           line-height: 50px;
@@ -1130,6 +1156,7 @@ export default class Intercourse extends Vue {
         justify-content: flex-start;
         background: white;
         .el-avatar {
+          cursor: pointer;
           background: white;
           height: 30px;
           width: 30px;
