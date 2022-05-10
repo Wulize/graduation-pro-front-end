@@ -346,8 +346,8 @@ export default class extends Vue {
     (this as any).$http
       .get(`/yx${route}`, { currentPage: this.currentPage })
       .then((data: any) => {
-        console.log(data.data.sightList); // 获取后端传递过来的数据：data.data
-        this.sightList = data.data.sightList;
+        console.log(data); // 获取后端传递过来的数据：data.data
+        this.sightList = data.sightList;
 
         const sightName: string[] = [];
         for (const sight of this.sightList) {
