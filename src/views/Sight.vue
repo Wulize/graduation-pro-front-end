@@ -303,7 +303,7 @@ export default class extends Vue {
     (this as any).$http
       .get("/yx/getSightInfo", { sightName })
       .then((data: any) => {
-        this.sightInfo = data.data.sightInfo;
+        this.sightInfo = data.sightInfo;
         if (!this.sightInfo) {
           if (this.ifShowThumbnail === true) {
             // 如果是缩略图没有景点详情，直接toast提示
@@ -346,9 +346,8 @@ export default class extends Vue {
     (this as any).$http
       .get(`/yx${route}`, { currentPage: this.currentPage })
       .then((data: any) => {
-        console.log(data); // 获取后端传递过来的数据：data.data
+        console.log(data.sightList); // 获取后端传递过来的数据：data.data
         this.sightList = data.sightList;
-
         const sightName: string[] = [];
         for (const sight of this.sightList) {
           // 存储该页景点名称

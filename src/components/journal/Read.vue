@@ -24,13 +24,10 @@
                 <span>{{ journal.viewCount }}</span>
               </div>
               <div class="good">
-                <i
-                  :class="[
+                <i :class="[
                     'el-icon-lollipop',
                     starList.includes(journal.id) ? 'selected' : 'normal',
-                  ]"
-                  @click="good(journal)"
-                ></i>
+                  ]" @click="good(journal)"></i>
                 <span>{{ journal.starCount }}</span>
               </div>
             </div>
@@ -60,13 +57,10 @@
                 <span>{{ journal.viewCount }}</span>
               </div>
               <div class="good">
-                <i
-                  :class="[
+                <i :class="[
                     'el-icon-lollipop',
                     starList.includes(journal.id) ? 'selected' : 'normal',
-                  ]"
-                  @click="good(journal)"
-                ></i>
+                  ]" @click="good(journal)"></i>
                 <span>{{ journal.starCount }}</span>
               </div>
             </div>
@@ -96,13 +90,10 @@
                 <span>{{ journal.viewCount }}</span>
               </div>
               <div class="good">
-                <i
-                  :class="[
+                <i :class="[
                     'el-icon-lollipop',
                     starList.includes(journal.id) ? 'selected' : 'normal',
-                  ]"
-                  @click="good(journal)"
-                ></i>
+                  ]" @click="good(journal)"></i>
                 <span>{{ journal.starCount }}</span>
               </div>
             </div>
@@ -118,11 +109,7 @@
           <div class="author">by {{ choosedJournal.userName }}</div>
         </div>
         <div class="back-btn">
-          <el-button
-            type="plain"
-            icon="el-icon-back"
-            @click="backToList"
-          ></el-button>
+          <el-button type="plain" icon="el-icon-back" @click="backToList"></el-button>
         </div>
       </div>
       <div class="hide-scroll">
@@ -133,117 +120,116 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue } from 'vue-property-decorator'
 @Component({})
 export default class extends Vue {
-  public ifGood: boolean = false; // 控制读写切换
-  public currentPage: number = 1; // 当前页码
-  public journalList1: any[] = []; // 游记列表1
-  public journalList2: any[] = []; // 游记列表2
-  public journalList3: any[] = []; // 游记列表3
-  public timer: any = null; // 节流定时器
-  public ifShowList: boolean = true; // 游记列表 or 某篇游记的查看
-  public choosedJournal: any = {}; // 点击的游记
-  public viewList: string[] = []; // 用户浏览的游记列表
-  public starList: string[] = []; // 用户点赞的游记列表
+  public ifGood: boolean = false // 控制读写切换
+  public currentPage: number = 1 // 当前页码
+  public journalList1: any[] = [] // 游记列表1
+  public journalList2: any[] = [] // 游记列表2
+  public journalList3: any[] = [] // 游记列表3
+  public timer: any = null // 节流定时器
+  public ifShowList: boolean = true // 游记列表 or 某篇游记的查看
+  public choosedJournal: any = {} // 点击的游记
+  public viewList: string[] = [] // 用户浏览的游记列表
+  public starList: string[] = [] // 用户点赞的游记列表
 
   public good(journal: any): void {
     // 用户点赞，将该游记加入到游记列表
     if (this.starList.includes(journal.id)) {
-      const index = this.starList.indexOf(journal.id);
-      this.starList.splice(index, 1);
-      journal.starCount -= 1;
+      const index = this.starList.indexOf(journal.id)
+      this.starList.splice(index, 1)
+      journal.starCount -= 1
     } else {
-      this.starList.push(journal.id);
-      journal.starCount += 1;
+      this.starList.push(journal.id)
+      journal.starCount += 1
     }
   }
 
   public handleScroll(): void {
     // 监听滚动事件
-    clearTimeout(this.timer);
+    clearTimeout(this.timer)
     this.timer = setTimeout(() => {
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = document.documentElement.clientHeight;
-      const scrollTop = document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = document.documentElement.clientHeight
+      const scrollTop = document.documentElement.scrollTop
       if (clientHeight + scrollTop === scrollHeight) {
-        this.getJournal();
+        this.getJournal()
       }
-    }, 500);
+    }, 500)
   }
 
   public toWatchJournal(journal: any): void {
     // 查看游记
-    this.choosedJournal = journal;
-    window.removeEventListener("scroll", this.handleScroll, true);
-    this.ifShowList = false;
+    this.choosedJournal = journal
+    window.removeEventListener('scroll', this.handleScroll, true)
+    this.ifShowList = false
     if (!this.viewList.includes(journal.id)) {
-      this.viewList.push(journal.id);
-      journal.viewCount += 1;
+      this.viewList.push(journal.id)
+      journal.viewCount += 1
     }
   }
   public backToList(): void {
     // 返回游记列表
-    this.ifShowList = true;
-    window.addEventListener("scroll", this.handleScroll, true);
+    this.ifShowList = true
+    window.addEventListener('scroll', this.handleScroll, true)
   }
   public getJournal(): void {
     // 获取游记
-    (this as any).$http
-      .get("/yx/getJournal", {
+    ;(this as any).$http
+      .get('/yx/getJournal', {
         currentPage: this.currentPage,
       })
       .then((data: any) => {
         if (data.journalList.length === 0) {
           this.$message({
             showClose: true,
-            message: "没有更多游记了哦！",
-            type: "warning",
-          });
-          window.removeEventListener("scroll", this.handleScroll, true);
+            message: '没有更多游记了哦！',
+            type: 'warning',
+          })
+          window.removeEventListener('scroll', this.handleScroll, true)
         } else {
-          const journalList = data.journalList;
-          let index = 1;
-          for (const value of journalList.length) {
+          const journalList = data.journalList
+          let index = 1
+          for (const value of journalList) {
             if (index === 1) {
-              this.journalList1.push(value);
-              index++;
+              this.journalList1.push(value)
+              index++
             } else if (index === 2) {
-              this.journalList2.push(value);
-              index++;
+              this.journalList2.push(value)
+              index++
             } else {
-              this.journalList3.push(value);
-              index = 1;
+              this.journalList3.push(value)
+              index = 1
             }
           }
-          this.currentPage += 1;
-          console.log(data.journalList);
+          this.currentPage += 1
+          console.log(this.journalList1)
         }
       })
       .catch((err: any) => {
-        console.log(err);
-      });
+        console.log(err)
+      })
   }
 
   mounted() {
-    this.getJournal();
+    this.getJournal()
   }
 
   created() {
-    window.addEventListener("scroll", this.handleScroll, true);
+    window.addEventListener('scroll', this.handleScroll, true)
   }
   destroyed() {
-    window.removeEventListener("scroll", this.handleScroll, true);
-    if (this.viewList.length === 0 && this.starList.length === 0) {
-    } else {
-      (this as any).$http
-        .post("/yx/modifyJournal", {
+    window.removeEventListener('scroll', this.handleScroll, true)
+    if (!(this.viewList.length === 0 && this.starList.length === 0)) {
+      ;(this as any).$http
+        .post('/yx/modifyJournal', {
           viewList: this.viewList,
           starList: this.starList,
         })
         .then((res: any) => {
-          console.log(res);
-        });
+          console.log(res)
+        })
     }
   }
 }
