@@ -6,9 +6,8 @@ class Http {
   constructor() {
     // axios默认配置,withCredentials这个属性表示允许使用cookie，否则不会将它存在浏览器中
     this.instance = axios.create({
-      baseURL: 'http://localhost:3000/',
+      baseURL: 'http://localhost:2333',
       timeout: 60000,
-      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -18,9 +17,9 @@ class Http {
     this.instance.interceptors.request.use(
       (config: any) => {
         // 可以判断是否携带cookie以及cookie是否过期
-        if (config.url.startsWith("/yx")) {
-          config.baseURL = "http://localhost:2333";
-        }
+        // if (config.url.startsWith('/yx')) {
+        //   config.baseURL = 'http://localhost:2333/'
+        // }
         return config
       },
       (error: any) => {

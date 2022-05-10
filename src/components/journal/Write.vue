@@ -19,14 +19,7 @@
           <div class="detail-words">图片格式应为jpg/png，且大小不超过2MB</div>
         </div>
       </div>
-      <el-upload
-        class="pic-uploader"
-        action="*"
-        ref="upload"
-        :show-file-list="false"
-        :auto-upload="false"
-        :on-change="beforeUpload"
-      >
+      <el-upload class="pic-uploader" action="*" ref="upload" :show-file-list="false" :auto-upload="false" :on-change="beforeUpload">
       </el-upload>
     </div>
     <div class="journal">
@@ -35,19 +28,11 @@
       </div>
       <div class="journal-details">
         <div class="journal-title">
-          <el-input
-            v-model="title"
-            placeholder="请输入游记标题"
-            maxlength="25"
-          ></el-input>
+          <el-input v-model="title" placeholder="请输入游记标题" maxlength="25"></el-input>
           <div class="tip">长度应在25个字符以内</div>
         </div>
         <div class="journal-tab">
-          <el-input
-            v-model="tab"
-            placeholder="请输入景点名称"
-            maxlength="10"
-          ></el-input>
+          <el-input v-model="tab" placeholder="请输入景点名称" maxlength="10"></el-input>
           <div class="tip">长度应在10个字符以内</div>
         </div>
         <div class="journal-submit">
@@ -59,62 +44,62 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import Editor from "@/components/common/Editor.vue";
-import { press } from "@/utils/index";
+import { Component, Vue } from 'vue-property-decorator'
+import Editor from '@/components/common/Editor.vue'
+import { press } from '@/utils/index'
 @Component({
   components: {
     Editor,
   },
 })
 export default class extends Vue {
-  public userName: string = "吴小泽"; // 用户名
-  public avatar: string = ""; // 用户头像
-  public title: string = ""; // 游记标题
-  public tab: string = ""; // 游记标签（景点）
-  public imageUrl: string = ""; // 头图URL
+  public userName: string = '吴小泽' // 用户名
+  public avatar: string = '' // 用户头像
+  public title: string = '' // 游记标题
+  public tab: string = '' // 游记标签（景点）
+  public imageUrl: string = '' // 头图URL
 
   public choosePic(): void {
     // 触发el-upload事件
-    (this as any).$refs.upload.$children[0].$refs.input.click();
+    ;(this as any).$refs.upload.$children[0].$refs.input.click()
   }
 
   public beforeUpload(file: any) {
     // 选择图片后获取图片字符串
     const isCorrectType =
-      file.raw.type === ("image/jpeg" || file.raw.type === "image/png");
-    const isLt2M = file.size / 1024 / 1024 < 2;
+      file.raw.type === ('image/jpeg' || file.raw.type === 'image/png')
+    const isLt2M = file.size / 1024 / 1024 < 2
 
     if (!isCorrectType) {
-      this.$message.error("上传头像图片只能是 JPG/PNG格式!");
+      this.$message.error('上传头像图片只能是 JPG/PNG格式!')
     }
     if (!isLt2M) {
-      this.$message.error("上传头像图片大小不能超过 2MB!");
+      this.$message.error('上传头像图片大小不能超过 2MB!')
     }
     if (isCorrectType && isLt2M) {
       new Promise((resolve, reject) => {
         // 将图片转为base64
-        const reader = new FileReader();
-        let base64: string | ArrayBuffer | null = "";
-        reader.readAsDataURL(file.raw);
+        const reader = new FileReader()
+        let base64: string | ArrayBuffer | null = ''
+        reader.readAsDataURL(file.raw)
         reader.onload = () => {
-          base64 = reader.result;
-        };
+          base64 = reader.result
+        }
         reader.onerror = (error) => {
-          reject(error);
-        };
+          reject(error)
+        }
         reader.onloadend = () => {
-          resolve(base64);
-        };
+          resolve(base64)
+        }
       }).then((res: any) => {
         press(res, 1.2) // 压缩图片
           .then((result: any) => {
-            this.imageUrl = result;
+            this.imageUrl = result
           })
           .catch((err) => {
-            console.log(err);
-          });
-      });
+            console.log(err)
+          })
+      })
     }
   }
 
@@ -122,80 +107,104 @@ export default class extends Vue {
     if (this.imageUrl.length === 0) {
       this.$message({
         showClose: true,
-        message: "请先上传头图哦！",
-        type: "error",
-      });
+        message: '请先上传头图哦！',
+        type: 'error',
+      })
     } else {
       if (this.title.length === 0 && this.tab.length !== 0) {
         this.$message({
           showClose: true,
-          message: "请输入游记标题！",
-          type: "error",
-        });
+          message: '请输入游记标题！',
+          type: 'error',
+        })
       } else if (this.title.length !== 0 && this.tab.length === 0) {
         this.$message({
           showClose: true,
-          message: "请输入景点名称！",
-          type: "error",
-        });
+          message: '请输入景点名称！',
+          type: 'error',
+        })
       } else if (this.title.length === 0 && this.tab.length === 0) {
         this.$message({
           showClose: true,
-          message: "请完善游记基本信息！",
-          type: "error",
-          customClass: "largeZindex",
-        });
+          message: '请完善游记基本信息！',
+          type: 'error',
+          customClass: 'largeZindex',
+        })
       } else {
-        const editor = (this as any).$refs.editor.editor;
-        let html = editor.txt.html();
-        if (html === "") {
+        const editor = (this as any).$refs.editor.editor
+        let html = editor.txt.html()
+        if (html === '') {
           this.$message({
             showClose: true,
-            message: "请输入游记内容！",
-            type: "error",
-          });
+            message: '请输入游记内容！',
+            type: 'error',
+          })
         } else {
           // 上传游记
-          const pattern: any = /src=["](.+?)["]/g;
-          const preSrc: any = html.match(pattern); // 正则获取游记中img标签的src
-          for (let i = 0; i < preSrc.length; i++) {
-            preSrc[i] = preSrc[i].replace("src=", "");
-            preSrc[i] = preSrc[i].replaceAll('"', "");
-          }
-          const newSrc: any = [];
-          for (let i = 0; i < preSrc.length; i++) {
-            // 压缩src并替换原html串
-            press(preSrc[i], 3)
-              .then((result: any) => {
-                newSrc.push(result);
-                html = html.replace(preSrc[i], newSrc[i]);
-                if (i === preSrc.length - 1) {
-                  (this as any).$http //  替换完后上传游记
-                    .post("/yx/uploadJournal", {
-                      userName: this.userName,
-                      headPic: this.imageUrl,
-                      title: this.title,
-                      tab: this.tab,
-                      content: html,
-                      viewAmount: 0,
-                    })
-                    .then((res: any) => {
-                      console.log(res);
-                      this.$message({
-                        showClose: true,
-                        message: "插入游记成功！快去查看你的大作吧！",
-                        type: "success",
-                      });
-                      editor.txt.clear();
-                      this.title = "";
-                      this.tab = "";
-                      this.imageUrl = "";
-                    });
-                }
+          const pattern: any = /src=["](.+?)["]/g
+          const preSrc: any = html.match(pattern) // 正则获取游记中img标签的src
+          if (preSrc === null) {
+            ;(this as any).$http //  替换完后上传游记
+              .post('/yx/uploadJournal', {
+                userName: this.userName,
+                headPic: this.imageUrl,
+                title: this.title,
+                tab: this.tab,
+                content: html,
+                viewAmount: 0,
               })
-              .catch((err) => {
-                console.log(err);
-              });
+              .then((res: any) => {
+                console.log(res)
+                this.$message({
+                  showClose: true,
+                  message: '插入游记成功！快去查看你的大作吧！',
+                  type: 'success',
+                })
+                editor.txt.clear()
+                this.title = ''
+                this.tab = ''
+                this.imageUrl = ''
+              })
+          } else {
+            for (let i = 0; i < preSrc.length; i++) {
+              preSrc[i] = preSrc[i].replace('src=', '')
+              preSrc[i] = preSrc[i].replaceAll('"', '')
+            }
+            const newSrc: any = []
+            for (let i = 0; i < preSrc.length; i++) {
+              // 压缩src并替换原html串
+              press(preSrc[i], 3)
+                .then((result: any) => {
+                  newSrc.push(result)
+                  html = html.replace(preSrc[i], newSrc[i])
+                  if (i === preSrc.length - 1) {
+                    ;(this as any).$http //  替换完后上传游记
+                      .post('/yx/uploadJournal', {
+                        userName: this.userName,
+                        headPic: this.imageUrl,
+                        title: this.title,
+                        tab: this.tab,
+                        content: html,
+                        viewAmount: 0,
+                      })
+                      .then((res: any) => {
+                        console.log(res)
+                        this.$message({
+                          showClose: true,
+                          message: '插入游记成功！快去查看你的大作吧！',
+                          type: 'success',
+                        })
+                        editor.txt.clear()
+                        this.title = ''
+                        this.tab = ''
+                        this.imageUrl = ''
+                      })
+                  }
+                })
+                .catch((err) => {
+                  console.log(err)
+                })
+            }
           }
         }
       }
@@ -349,7 +358,7 @@ export default class extends Vue {
           position: relative;
         }
         .tip::before {
-          content: "*";
+          content: '*';
           display: block;
           position: absolute;
           color: red;
@@ -376,7 +385,7 @@ export default class extends Vue {
           position: relative;
         }
         .tip::before {
-          content: "*";
+          content: '*';
           display: block;
           position: absolute;
           color: red;
