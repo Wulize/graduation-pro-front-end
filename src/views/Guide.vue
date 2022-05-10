@@ -22,7 +22,7 @@
               景点介绍: {{ item.description }}
             </div>
             <div class="food-introduction">
-              附近美食: {{ item.description }}
+              附近美食: 四果汤，土笋冻，蚵仔煎
             </div>
           </div>
         </div>
@@ -139,25 +139,25 @@ export default class Guide extends Vue {
       content: "厦门大学",
       position: [118.108354, 24.44184],
       description:
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "上弦场是厦大出镜率最高的体育场,也是校园中最适合感受大学时光的地方。操场与海一街之隔,宽阔的区域不仅能一眼望到厦门最高的建筑双子塔(世茂海峡大厦),坐在倾斜的看台上还能与标志性的建南大礼堂合影留念。 林若萌 这座礼堂承载着厦大学子的毕业典礼,也同样是一座中西合璧的气派建筑。",
     },
     {
       content: "胡里山炮台",
       position: [118.112612, 24.435458],
       description:
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "胡里山炮台（胡里山礮台）位于中国福建省厦门市厦门岛东南海岬突出部，毗邻厦门大学园区，三面环海，景区系国家级文物保护单位、全国4A级旅游景区。",
     },
     {
       content: "五缘湾公园",
       position: [118.181566, 24.520184],
       description:
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "厦门五缘湾湿地公园是厦门五缘湾片区带动项目之一，占地85公顷，面积相当于半个鼓浪屿，是厦门最大的公园，也是最大的湿地生态园区，被称为是厦门的城市绿肺。",
     },
     {
       content: "观音山",
       position: [118.195137, 24.499667],
       description:
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "观音山海岸线上有很美的海滨浴场，来这里的游客一定要到干净的浴场上好好的尽兴一番，晒晒太阳玩玩水。主要景点 厦门观音山海滨旅游项目用地位于厦门东部，紧临环岛路，面向厦门东海域，与金门隔海相望",
     },
   ];
   public active: number = 1;
@@ -167,25 +167,25 @@ export default class Guide extends Vue {
         content: "厦门大学",
         position: [118.108354, 24.44184],
         description:
-          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "上弦场是厦大出镜率最高的体育场,也是校园中最适合感受大学时光的地方。操场与海一街之隔,宽阔的区域不仅能一眼望到厦门最高的建筑双子塔(世茂海峡大厦),坐在倾斜的看台上还能与标志性的建南大礼堂合影留念。",
       },
       {
         content: "胡里山炮台",
         position: [118.112612, 24.435458],
         description:
-          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "胡里山炮台（胡里山礮台）位于中国福建省厦门市厦门岛东南海岬突出部，毗邻厦门大学园区，三面环海，景区系国家级文物保护单位、全国4A级旅游景区。",
       },
       {
         content: "五缘湾公园",
         position: [118.181566, 24.520184],
         description:
-          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "厦门五缘湾湿地公园是厦门五缘湾片区带动项目之一，占地85公顷，面积相当于半个鼓浪屿，是厦门最大的公园，也是最大的湿地生态园区，被称为是厦门的城市绿肺。",
       },
       {
         content: "观音山",
         position: [118.195137, 24.499667],
         description:
-          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "观音山海岸线上有很美的海滨浴场，来这里的游客一定要到干净的浴场上好好的尽兴一番，晒晒太阳玩玩水。主要景点 厦门观音山海滨旅游项目用地位于厦门东部，紧临环岛路，面向厦门东海域，与金门隔海相望",
       },
     ],
     [

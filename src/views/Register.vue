@@ -218,7 +218,7 @@ export default class Register extends Vue {
 
 <style lang="scss">
 .login-wrapper {
-  width: 100vw;
+  width: 98vw;
   height: 100vh;
   display: flex;
   .image-wrapper {

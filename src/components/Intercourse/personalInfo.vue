@@ -61,7 +61,7 @@ export default class PersonalInfo extends Vue {
   public uploadUrl: string = "http://up-z2.qiniup.com";
   //   上传token
   public uploadData: any = { key: "", token: "" };
-  public qiniuUrl: string = "http://r5dto15fw.hn-bkt.clouddn.com/";
+  public qiniuUrl: string = "http://ratpspren.hn-bkt.clouddn.com/";
   public form: any = {
     name: "",
     email: "",
@@ -112,7 +112,7 @@ export default class PersonalInfo extends Vue {
         userName: this.form.name,
         password: this.form.password,
         avatarUrl:
-          this.qiniuUrl !== "http://r5dto15fw.hn-bkt.clouddn.com/"
+          this.qiniuUrl !== "http://ratpspren.hn-bkt.clouddn.com/"
             ? this.qiniuUrl
             : sessionStorage.getItem("avatarUrl"),
         email: this.form.email,
@@ -124,7 +124,7 @@ export default class PersonalInfo extends Vue {
           message: `${response.msg}`,
           type: "success",
         });
-        if (this.qiniuUrl !== "http://r5dto15fw.hn-bkt.clouddn.com/")
+        if (this.qiniuUrl !== "http://ratpspren.hn-bkt.clouddn.com/")
           sessionStorage.setItem("avatarUrl", this.qiniuUrl);
         this.$emit("close");
       });
