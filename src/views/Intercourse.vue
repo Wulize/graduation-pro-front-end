@@ -138,6 +138,9 @@
           <div @mousedown="startRecord" @mouseup="stopRecord">
             <el-avatar :src="avatarUrl[5]" title="发送语音"></el-avatar>
           </div>
+          <div @mousedown="startVideo">
+            <el-avatar :src="avatarUrl[6]" title="视频通话"></el-avatar>
+          </div>
         </div>
         <!-- 添加输入内容 -->
         <el-input
@@ -176,6 +179,17 @@
       :auto-upload="false"
     >
     </el-upload>
+    <videoCall
+      v-show="isVideo"
+      class="video"
+      ref="child"
+      @answer="handleAnswer"
+      @offer="handleOffer"
+      @offerIce="handleOfferIce"
+      @answerIce="handleAnswerIce"
+      @cancle="stopVideo"
+      :msg="videoMsg"
+    ></videoCall>
   </div>
 </template>
 
@@ -184,12 +198,17 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import addfriend from "../components/Intercourse/addfriend.vue";
 import editMyInfo from "../components/Intercourse/personalInfo.vue";
 import pictureBoost from "../components/Intercourse/picture-boost.vue";
+import videoCall from "../components/Intercourse/videoCall.vue";
 import Recorderx, { ENCODE_TYPE } from "recorderx";
-import { blobToBase64 } from "@/utils/index";
+import { blobToBase64, eventBus } from "@/utils/index";
 @Component({
-  components: { addfriend, editMyInfo, pictureBoost },
+  components: { addfriend, editMyInfo, pictureBoost, videoCall },
 })
 export default class Intercourse extends Vue {
+  // 视频通话组件的属性
+  public videoMsg: any = {};
+  // 是否视频通话
+  public isVideo: boolean = false;
   // 正在播放的节点
   public brocastNode: any;
   public rc: any = new Recorderx();
@@ -223,7 +242,7 @@ export default class Intercourse extends Vue {
   public value: string = "";
   // 发送的消息
   public inputValue: string = "";
-  public path: string = "ws://localhost:3001?id=";
+  public path: string = "ws://192.168.1.106:3001?id=";
   public socket: any = {};
   // 在线好友
   public onlineFriend: string[] = [];
@@ -235,6 +254,7 @@ export default class Intercourse extends Vue {
     `${require("@/assets/images/chat/photo.svg")}`,
     `${require("@/assets/images/chat/file.svg")}`,
     `${require("@/assets/images/chat/voice.svg")}`,
+    `${require("@/assets/images/chat/video_call.svg")}`,
   ];
   // 当前好友的聊天记录
   public msgList: any[] = [];
@@ -408,6 +428,30 @@ export default class Intercourse extends Vue {
             this.chooseReciever(index);
           }
         }
+        // 视频通话协商
+        else {
+          if (data.send_msg.type === "offer" && !this.isVideo)
+            this.isVideo = true;
+          // 视频通话过程中，返回“对方正忙”
+          else if (data.send_msg.type === "offer" && this.isVideo) {
+            this.send(
+              JSON.stringify({
+                type: "vedioBusy",
+                send_time: new Date().toLocaleString(),
+                send_msg: {
+                  type: "vedioBusy",
+                  info: "对方正忙！",
+                },
+                send_id: this.userName,
+                send_name: this.userName,
+                receiver: data.send_name,
+              })
+            );
+            return;
+          }
+          data.send_msg.send_name = data.send_name;
+          eventBus.$emit("msgReceive", data.send_msg);
+        }
       };
     }
   }
@@ -532,16 +576,13 @@ export default class Intercourse extends Vue {
   }
   // 关闭编辑信息弹窗
   public closeEditInfo() {
-    console.log("组件关闭");
     this.editInfoShow = false;
   }
   // 打开编辑信息弹窗
   public openEditInfo() {
-    console.log("组件打开");
     this.editInfoShow = true;
   }
   public sendPic() {
-    console.log("点击发送图片");
     // console.log(this.$refs.upload);
 
     (this.$refs.upload as any).$children[1].$refs.input.click();
@@ -728,7 +769,6 @@ export default class Intercourse extends Vue {
   }
   // 音频播放结束
   public onBroadcastEnd(event: any) {
-    console.log("音频播放结束");
     // 播放结束就不记录当前节点，另其值等于undefined
     if (this.brocastNode === event.path[1].children[1]) {
       this.brocastNode.parentElement.children[0].children[1].style.cssText =
@@ -737,6 +777,70 @@ export default class Intercourse extends Vue {
         "animation: none";
       this.brocastNode = undefined;
     }
+  }
+
+  /* 新增视频通话功能 ---- 2022/4/24*/
+  // 开始视频通话
+  public startVideo() {
+    this.isVideo = true;
+  }
+  // 结束视频通话
+  public stopVideo(info: any) {
+    if (info.type === "answer") {
+      info.send_id = this.userName;
+      info.send_name = this.userName;
+      info.receiver = this.id;
+      this.send(JSON.stringify(info));
+    }
+    this.isVideo = false;
+  }
+  // 处理answer
+  public handleAnswer(answer: any) {
+    const info = {
+      type: "answer",
+      send_time: new Date().toLocaleString(),
+      send_msg: answer,
+      send_id: this.userName,
+      send_name: this.userName,
+      receiver: this.id,
+    };
+    this.send(JSON.stringify(info));
+  }
+  // 处理offer
+  public handleOffer(offer: any) {
+    const info = {
+      type: "offer",
+      send_time: new Date().toLocaleString(),
+      send_msg: offer,
+      send_id: this.userName,
+      send_name: this.userName,
+      receiver: this.id,
+    };
+    this.send(JSON.stringify(info));
+  }
+  // 处理offerIce 信息
+  public handleOfferIce(offerIce: any) {
+    const info = {
+      type: "offerIce",
+      send_time: new Date().toLocaleString(),
+      send_msg: offerIce,
+      send_id: this.userName,
+      send_name: this.userName,
+      receiver: this.id,
+    };
+    this.send(JSON.stringify(info));
+  }
+  // 处理offer
+  public handleAnswerIce(answerIce: any) {
+    const info = {
+      type: "answerIce",
+      send_time: new Date().toLocaleString(),
+      send_msg: answerIce,
+      send_id: this.userName,
+      send_name: this.userName,
+      receiver: this.id,
+    };
+    this.send(JSON.stringify(info));
   }
 }
 </script>
@@ -765,6 +869,7 @@ export default class Intercourse extends Vue {
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
         p {
           margin: 0 0 0 10px;
           line-height: 50px;
@@ -1051,6 +1156,7 @@ export default class Intercourse extends Vue {
         justify-content: flex-start;
         background: white;
         .el-avatar {
+          cursor: pointer;
           background: white;
           height: 30px;
           width: 30px;
@@ -1086,6 +1192,12 @@ export default class Intercourse extends Vue {
         background: #999;
       }
     }
+  }
+  .video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
   }
 }
 </style>

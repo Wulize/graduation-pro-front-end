@@ -3,17 +3,18 @@
     <div class="travel-wrapper">
       <div class="travel-nav">
         <Navbar v-if="$store.state.showNav"></Navbar>
-        <div class="nav-btn" @click="changeNavDisplay">
-          <div>{{navText}}</div>
-        </div>
       </div>
       <div class="notify" v-if="!ifIntercourse && login">
         <el-badge :value="msgNum" class="item">
-          <el-button size="small" @click="hangdleClick(`/intercourse`)">消息</el-button>
+          <el-button size="small" @click="hangdleClick(`/intercourse`)"
+            >消息</el-button
+          >
         </el-badge>
       </div>
       <div class="returnHome" v-else-if="ifIntercourse && login">
-        <el-button size="small" @click="hangdleClick(`/home`)">返回主页</el-button>
+        <el-button size="small" @click="hangdleClick(`/home`)"
+          >返回主页</el-button
+        >
       </div>
       <div class="travel-content">
         <keep-alive>
@@ -25,67 +26,56 @@
   </div>
 </template>
 <script lang='ts'>
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import Navbar from './components/common/Navbar.vue'
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import Navbar from "./components/common/Navbar.vue";
 @Component({
   components: {
     Navbar,
   },
 })
 export default class App extends Vue {
-  public msgNum: number = 0
-  public ifIntercourse = false
-  public timeoutId: number = 0
-  public login: boolean = false
-  public navText: string = '<'
-  @Watch('$store.state.unreadMsg', { immediate: true })
+  public msgNum: number = 0;
+  public ifIntercourse = false;
+  public timeoutId: number = 0;
+  public login: boolean = false;
+  @Watch("$store.state.unreadMsg", { immediate: true })
   hangdle(newval: number) {
-    this.msgNum = newval
+    this.msgNum = newval;
   }
-  @Watch('$store.state.isConnect')
+  @Watch("$store.state.isConnect")
   handle(newval: boolean) {
-    clearInterval(this.timeoutId)
+    clearInterval(this.timeoutId);
   }
-  @Watch('$route')
+  @Watch("$route")
   handleWatch(newVal: any) {
-    if (newVal.path === '/intercourse') {
-      this.$store.state.showNav = false
-      this.ifIntercourse = true
-      this.$store.state.unreadMsg = 0
+    if (newVal.path === "/intercourse") {
+      this.$store.state.showNav = false;
+      this.ifIntercourse = true;
+      this.$store.state.unreadMsg = 0;
     } else {
-      this.$store.state.showNav = true
-      this.$store.state.unreadMsg = 0
-      this.ifIntercourse = false
+      this.$store.state.showNav = true;
+      this.$store.state.unreadMsg = 0;
+      this.ifIntercourse = false;
     }
     // 会出问题不？
-    if (newVal.path === '/login' || newVal.path === '/register') {
-      this.login = false
-    } else this.login = true
+    if (newVal.path === "/login" || newVal.path === "/register") {
+      this.login = false;
+    } else this.login = true;
   }
   public hangdleClick(index: string) {
-    this.$router.push(index)
-  }
-  public changeNavDisplay(): void {
-    // 切换nav显示隐藏
-    if (this.navText === '<') {
-      this.$store.state.showNav = false
-      this.navText = '>'
-    } else {
-      this.$store.state.showNav = true
-      this.navText = '<'
-    }
+    this.$router.push(index);
   }
   public created() {
     this.timeoutId = setInterval(async () => {
-      const userName = sessionStorage.getItem('userName')
-      ;(this as any).$http
-        .get('/chat/getMsgNum', {
+      const userName = sessionStorage.getItem("userName");
+      (this as any).$http
+        .get("/chat/getMsgNum", {
           userName,
         })
         .then((res: any) => {
-          this.$store.state.unreadMsg = res.MsgNum
-        })
-    }, 4000)
+          this.$store.state.unreadMsg = res.MsgNum;
+        });
+    }, 4000);
   }
 }
 </script>
@@ -105,7 +95,7 @@ iframe {
   height: 100%;
   .notify {
     position: fixed;
-    z-index: 100;
+    z-index: 1000;
     top: 20px;
     right: 2%;
   }
