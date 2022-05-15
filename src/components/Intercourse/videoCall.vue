@@ -71,8 +71,8 @@ export default class Intercourse extends Vue {
     } else if (type === "vedioend") {
       const srcObject = (this.localVideo as any).srcObject;
       const tracks = srcObject ? srcObject.getTracks() : [];
-      for (let i = 0; i < tracks.length; i++) {
-        tracks[i].stop();
+      for (const i of tracks) {
+        i.stop();
       }
       this.iscommunicating = false;
       this.timer++;
@@ -182,8 +182,8 @@ export default class Intercourse extends Vue {
     // 关闭摄像头
     const srcObject = (this.localVideo as any).srcObject;
     const tracks = srcObject ? srcObject.getTracks() : [];
-    for (let i = 0; i < tracks.length; i++) {
-      tracks[i].stop();
+    for (const i of tracks) {
+      i.stop();
     }
     this.iscommunicating = false;
     this.timer++;
