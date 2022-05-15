@@ -8,7 +8,8 @@ export default new Vuex.Store({
     showNav: false,
     userName: '',
     unreadMsg: 0,
-    isConnect: false
+    isConnect: false,
+    sightList: [],
   },
   mutations: {},
   actions: {},
