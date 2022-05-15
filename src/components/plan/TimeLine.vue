@@ -7,14 +7,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 @Component({
   components: {},
 })
 export default class extends Vue {
-  public step: string[] = ['第一天', '第二天', '第三天', '第四天'] // 步骤条时间
   public activeIndex: number = 1 // 当前选择的是第几天
-
+  @Prop()
+  step: string[] | undefined
   public toCertainDay(index: number): void {
     this.activeIndex = index + 1
     console.log(this.activeIndex)
