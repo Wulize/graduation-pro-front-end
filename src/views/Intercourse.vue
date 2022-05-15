@@ -242,7 +242,7 @@ export default class Intercourse extends Vue {
   public value: string = "";
   // 发送的消息
   public inputValue: string = "";
-  public path: string = "ws://192.168.1.106:3001?id=";
+  public path: string = "ws://192.168.1.111:3001?id=";
   public socket: any = {};
   // 在线好友
   public onlineFriend: string[] = [];
@@ -577,6 +577,7 @@ export default class Intercourse extends Vue {
   // 关闭编辑信息弹窗
   public closeEditInfo() {
     this.editInfoShow = false;
+    this.myAvatarUrl = sessionStorage.getItem("avatarUrl") || "";
   }
   // 打开编辑信息弹窗
   public openEditInfo() {
@@ -682,13 +683,28 @@ export default class Intercourse extends Vue {
   }
   // 结束录音
   public stopRecord() {
-    this.$message({
-      showClose: true,
-      message: "录音完成！",
-      type: "success",
-    });
     this.statusaudio = true;
     this.rc.pause();
+    const wav = this.rc.getRecord({
+      encodeTo: ENCODE_TYPE.WAV,
+      compressible: true,
+    });
+    if (wav.size < 20000) {
+      this.$message({
+        showClose: true,
+        message: "录音时间过短！",
+        type: "warning",
+      });
+      this.rc.clear();
+      this.statusaudio = false;
+      return;
+    } else {
+      this.$message({
+        showClose: true,
+        message: "录音完成！",
+        type: "success",
+      });
+    }
     this.sendRecord();
   }
   // 发送录音
@@ -876,6 +892,7 @@ export default class Intercourse extends Vue {
         }
       }
       #addSign {
+        cursor: pointer;
         height: 30px;
         width: 30px;
         display: flex;

@@ -127,6 +127,7 @@ export default class PersonalInfo extends Vue {
         if (this.qiniuUrl !== "http://ratpspren.hn-bkt.clouddn.com/")
           sessionStorage.setItem("avatarUrl", this.qiniuUrl);
         this.$emit("close");
+        this.qiniuUrl = "http://ratpspren.hn-bkt.clouddn.com/";
       });
   }
 }
@@ -166,11 +167,11 @@ export default class PersonalInfo extends Vue {
       bottom: 20px;
       .cancleButton {
         margin-left: 50px;
-        width: 150px;
+        width: 100px;
       }
       .confirmButton {
         margin-left: 50px;
-        width: 150px;
+        width: 100px;
       }
     }
   }
