@@ -117,6 +117,7 @@ export default class extends Vue {
   public sightInfo: any = {} // 景点详情数据
   public sightName: string[] = [] // 存放景点名称，用于缩略图上下切换时发请求
   public currentSightName: string = '' // 存放当前景点名称
+  public viewHistory: any = {} // 存放用户浏览过的历史记录
 
   public getAllSights(): void {
     // 点击所有景点
@@ -263,6 +264,11 @@ export default class extends Vue {
 
   public toSightInfo(sightName: string, type: number = 0): void {
     // 跳转到景点详情
+    if (this.viewHistory[sightName]) {
+      this.viewHistory[sightName]++
+    } else {
+      this.viewHistory[sightName] = 1
+    }
     ;(this as any).$http
       .get('/yx/getSightInfo', { sightName })
       .then((data: any) => {
@@ -332,6 +338,16 @@ export default class extends Vue {
 
   created() {
     this.getSights(this.currentRoute)
+  }
+  beforeDestroy() {
+    ;(this as any).$http
+      .get('/yx/saveHistory', {
+        history: this.viewHistory,
+        user: 'yangxuan',
+      })
+      .then((res: any) => {
+        console.log(res)
+      })
   }
   // @Watch('sightList')
   // onSightListChanged(newVal: string) {

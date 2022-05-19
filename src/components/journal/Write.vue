@@ -92,13 +92,14 @@ export default class extends Vue {
           resolve(base64)
         }
       }).then((res: any) => {
-        press(res, 1.2) // 压缩图片
-          .then((result: any) => {
-            this.imageUrl = result
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        // press(res, 1) // 压缩图片
+        //   .then((result: any) => {
+        //     this.imageUrl = result
+        //   })
+        //   .catch((err) => {
+        //     console.log(err)
+        //   })
+        this.imageUrl = res
       })
     }
   }

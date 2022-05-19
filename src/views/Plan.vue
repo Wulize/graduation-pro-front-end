@@ -170,7 +170,7 @@ export default class extends Vue {
         this.$router.push('/guide')
       }, 2000)
       ;(this as any).$http
-        .get('/yx/getRandomSight', { day: this.selectedTime })
+        .get('/yx/getRandomSight', { day: this.selectedTime,user:'yangxuan' })
         .then((res: any) => {
           console.log(res.sightList)
           this.$store.state.sightList = res.sightList
@@ -284,31 +284,31 @@ export default class extends Vue {
     }
     .time-chooser div:nth-child(1) {
       width: 14%;
-      background: red;
+      background: rgba($color: rgb(158, 249, 158), $alpha: 1);
     }
     .time-chooser div:nth-child(2) {
       width: 28%;
-      background: orange;
+      background: rgba($color: rgb(122, 243, 122), $alpha: 1);
     }
     .time-chooser div:nth-child(3) {
       width: 42%;
-      background: yellow;
+      background: rgba($color: rgb(91, 246, 91), $alpha: 1);
     }
     .time-chooser div:nth-child(4) {
       width: 56%;
-      background: green;
+      background: rgba($color: rgb(61, 244, 61), $alpha: 1);
     }
     .time-chooser div:nth-child(5) {
       width: 70%;
-      background: #00ffff;
+      background: rgba($color: rgb(37, 214, 37), $alpha: 1);
     }
     .time-chooser div:nth-child(6) {
       width: 84%;
-      background: blue;
+      background: rgba($color: rgb(18, 159, 18), $alpha: 1);
     }
     .time-chooser div:nth-child(7) {
       width: 98%;
-      background: purple;
+      background: rgba($color: rgb(6, 116, 6), $alpha: 1);
     }
     .confirm {
       margin-left: calc(50% - 100px);
@@ -317,12 +317,20 @@ export default class extends Vue {
         width: 200px;
         height: 50px;
         margin-top: 25px;
-        color: yellowgreen;
+        color: white;
+        background: linear-gradient(
+          to right,
+          rgba($color: rgb(158, 249, 158), $alpha: 1),
+          rgba($color: rgb(6, 116, 6), $alpha: 1)
+        );
         font-size: 20px;
         font-weight: bold;
         &:hover {
-          background: rgba($color: yellow, $alpha: 0.5);
-          color: white;
+          background: linear-gradient(
+            to left,
+            rgba($color: rgb(158, 249, 158), $alpha: 1),
+            rgba($color: rgb(6, 116, 6), $alpha: 1)
+          );
         }
       }
     }
