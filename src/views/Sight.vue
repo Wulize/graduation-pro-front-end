@@ -317,7 +317,6 @@ export default class extends Vue {
       .then((data: any) => {
         console.log(data.sightList) // 获取后端传递过来的数据：data.data
         this.sightList = data.sightList
-
         const sightName: string[] = []
         for (const sight of this.sightList) {
           // 存储该页景点名称

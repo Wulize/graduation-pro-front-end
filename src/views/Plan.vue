@@ -2,16 +2,30 @@
   <div class="plan-wrapper">
     <div class="require-wrapper" v-if="showController1">
       <div class="time-chooser" @click="getChoosedTime">
-        <div :class="['timer',timeChooser1 ? 'normal-timer':'choosed-timer']">1天</div>
-        <div :class="['timer',timeChooser2 ? 'normal-timer':'choosed-timer']">2天</div>
-        <div :class="['timer',timeChooser3 ? 'normal-timer':'choosed-timer']">3天</div>
-        <div :class="['timer',timeChooser4 ? 'normal-timer':'choosed-timer']">4天</div>
-        <div :class="['timer',timeChooser5 ? 'normal-timer':'choosed-timer']">5天</div>
-        <div :class="['timer',timeChooser6 ? 'normal-timer':'choosed-timer']">6天</div>
-        <div :class="['timer',timeChooser7 ? 'normal-timer':'choosed-timer']">7天</div>
+        <div :class="['timer', timeChooser1 ? 'normal-timer' : 'choosed-timer']">
+          1天
+        </div>
+        <div :class="['timer', timeChooser2 ? 'normal-timer' : 'choosed-timer']">
+          2天
+        </div>
+        <div :class="['timer', timeChooser3 ? 'normal-timer' : 'choosed-timer']">
+          3天
+        </div>
+        <div :class="['timer', timeChooser4 ? 'normal-timer' : 'choosed-timer']">
+          4天
+        </div>
+        <div :class="['timer', timeChooser5 ? 'normal-timer' : 'choosed-timer']">
+          5天
+        </div>
+        <div :class="['timer', timeChooser6 ? 'normal-timer' : 'choosed-timer']">
+          6天
+        </div>
+        <div :class="['timer', timeChooser7 ? 'normal-timer' : 'choosed-timer']">
+          7天
+        </div>
       </div>
       <div class="confirm">
-        <el-button type="plain" @click="toChooseMode">{{btnText}}</el-button>
+        <el-button type="plain" @click="toChooseMode">{{ btnText }}</el-button>
       </div>
     </div>
     <div class="recommendation-wrapper" v-else>
@@ -59,17 +73,23 @@
           <el-button type="plain" @click="toRoutePlan">Next</el-button>
         </div>
         <div class="mode-wrapper">
-          <div :class="['mode',modeChooser1 ? 'normal-mode': 'choosed-mode']" @click="toMode1">
+          <div :class="['mode', modeChooser1 ? 'normal-mode' : 'choosed-mode']" @click="toMode1">
             <div class="title">选择类别推荐</div>
-            <div class="content">选择你喜欢的类别，系统会从该类别中推荐相应景点哦~</div>
+            <div class="content">
+              选择你喜欢的类别，系统会从该类别中推荐相应景点哦~
+            </div>
           </div>
-          <div :class="['mode',modeChooser2 ? 'normal-mode': 'choosed-mode']" @click="toMode2">
+          <div :class="['mode', modeChooser2 ? 'normal-mode' : 'choosed-mode']" @click="toMode2">
             <div class="title">输入描述推荐</div>
-            <div class="content">如果你不确定自己喜欢的类别，可以写下你对心仪景点的描述哦~</div>
+            <div class="content">
+              如果你不确定自己喜欢的类别，可以写下你对心仪景点的描述哦~
+            </div>
           </div>
-          <div :class="['mode',modeChooser3 ? 'normal-mode': 'choosed-mode']" @click="toMode3">
+          <div :class="['mode', modeChooser3 ? 'normal-mode' : 'choosed-mode']" @click="toMode3">
             <div class="title">随机推荐</div>
-            <div class="content">如果你有选择困难症，不妨试试随机推荐功能哦~</div>
+            <div class="content">
+              如果你有选择困难症，不妨试试随机推荐功能哦~
+            </div>
           </div>
         </div>
       </div>
@@ -118,7 +138,6 @@ export default class extends Vue {
   public getChoosedTime(e: any): void {
     const index: number = Number.parseInt(e.target.innerText[0], 10)
     this.selectedTime = index
-    console.log(this.selectedTime)
     const s = 'timeChooser'
     for (let i = 1; i <= 7; i++) {
       if (index === i) {
@@ -170,9 +189,11 @@ export default class extends Vue {
         this.$router.push('/guide')
       }, 2000)
       ;(this as any).$http
-        .get('/yx/getRandomSight', { day: this.selectedTime,user:'yangxuan' })
+        .get('/yx/getRandomSight', { day: this.selectedTime, user: 'yangxuan' })
         .then((res: any) => {
-          console.log(res.sightList)
+          loading.close()
+          this.$router.push('/guide')
+
           this.$store.state.sightList = res.sightList
         })
     }
@@ -184,7 +205,6 @@ export default class extends Vue {
     this.$router.push('/guide')
   }
   public confirmKind(): void {
-    console.log(this.choosedKind)
     this.showController2 = false
     this.ifShowKindChooser = false
     this.ifShowMask = false
@@ -204,7 +224,6 @@ export default class extends Vue {
         day: this.selectedTime,
       })
       .then((res: any) => {
-        console.log(res.sightList)
         this.$store.state.sightList = res.sightList
       })
   }
@@ -217,7 +236,6 @@ export default class extends Vue {
     this.showController2 = false
     this.ifShowInputer = false
     this.ifShowMask = false
-    console.log(this.userInput)
     const loading = this.$loading({
       lock: true,
       text: '正在八百里加急获取景点信息！！！',
@@ -234,7 +252,6 @@ export default class extends Vue {
         day: this.selectedTime,
       })
       .then((res: any) => {
-        console.log(res.sightList)
         this.$store.state.sightList = res.sightList
       })
   }

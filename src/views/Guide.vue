@@ -5,7 +5,7 @@
         <el-step
           v-for="(item, index) in scenicArr"
           :key="index"
-          :title="`第${index + 1}天`"
+          :title="`第 ${index + 1} 天`"
           @click.native="handleStepClick(index + 1)"
         ></el-step>
       </el-steps>
@@ -17,17 +17,27 @@
             v-for="(item, index) in scenicArr[active - 1]"
             :key="index"
           >
-            <div class="item-name">{{ item.content }}</div>
-            <div class="item-introduction">
-              景点介绍: {{ item.description }}
+            <div class="item-name">
+              {{ (item || {}).content || "无" }}
             </div>
-            <div class="food-introduction">
+            <div
+              class="item-introduction"
+              style="
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 10;
+              "
+            >
+              {{ (item || {}).description || "暂无相关介绍" }}
+            </div>
+            <!-- <div class="food-introduction">
               附近美食: 四果汤，土笋冻，蚵仔煎
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="generate-button">
-          <el-button type="primary" @click="generateMap"
+          <el-button type="success" @click="generateMap"
             >生成可视化路线</el-button
           >
         </div>
@@ -47,7 +57,9 @@
               {{
                 `${
                   index !== dailyScenic.length - 1
-                    ? `● ${item.content}--->${dailyScenic[index + 1].content}`
+                    ? `● ${(item || {}).content || "暂无"}--->${
+                        (dailyScenic[index + 1] || {}).content || "暂无"
+                      }`
                     : "入住XXXXXXXXX酒店"
                 }  `
               }}
@@ -56,8 +68,8 @@
           <div class="trip-mode">
             <p>
               {{
-                `已选择路段:   ${origin.content || "起点"} ---> ${
-                  destination.content || "终点"
+                `已选择路段:   ${(origin || {}).content || "起点"} ---> ${
+                  (destination || {}).content || "终点"
                 }`
               }}
             </p>
@@ -87,7 +99,7 @@
           </div>
         </div>
       </div>
-      <div class="map-wrap">
+      <div class="map-wrap" ref="mapId">
         <amap
           cache-key="home-map"
           map-style="amap://styles/whitesmoke"
@@ -96,31 +108,54 @@
           :center="[118.129625, 24.479833]"
         >
           <amap-marker
-            v-for="(item, index) in scenicArr[active - 1]"
+            v-for="(item, index) in dailyScenic"
             :key="index"
             :position="item.position"
             :label="{
-              content: `${item.content}`,
+              content: `${(item || {}).content || '暂无'}`,
               direction: 'bottom',
             }"
           />
           <amap-polyline
+            v-show="path.length !== 0"
             :editable="editable"
             :path.sync="path"
-            :stroke-weight="8"
+            :stroke-weight="4"
           ></amap-polyline>
         </amap>
       </div>
     </div>
+    <PositionChoose
+      v-if="choiceShow"
+      @posChooseClose="handlePositionChoose"
+    ></PositionChoose>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Watch } from "vue-property-decorator";
 import axios from "axios";
 import * as _ from "lodash";
-@Component
+import PositionChoose from "../components/Guide/position-choose.vue";
+@Component({
+  components: { PositionChoose },
+})
 export default class Guide extends Vue {
+  //  他市用户选择的路径规划起点、终点
+  public start: any = {
+    latitude: "",
+    longitude: "",
+    info: "",
+  };
+  public desti: any = {
+    latitude: "",
+    longitude: "",
+    info: "",
+  };
+  // 本市用户当前用户的经纬度
+  public position: any = new Array(2);
+  // 用户定位不在厦门市时，展示用户起点终点选择界面
+  public choiceShow: boolean = false;
   public userName: string = sessionStorage.getItem("userName") || "";
   // 出行方式的信息
   public modeItemInfo: any = {
@@ -131,105 +166,24 @@ export default class Guide extends Vue {
   };
   public origin: any = {};
   public destination: any = {};
-  public path: any = [];
+  public path: any[] = [[118.108354, 24.44184]];
   public editable: boolean = true;
   //  算法返回的当天旅游建议
-  public dailyScenic: any = [
-    {
-      content: "厦门大学",
-      position: [118.108354, 24.44184],
-      description:
-        "上弦场是厦大出镜率最高的体育场,也是校园中最适合感受大学时光的地方。操场与海一街之隔,宽阔的区域不仅能一眼望到厦门最高的建筑双子塔(世茂海峡大厦),坐在倾斜的看台上还能与标志性的建南大礼堂合影留念。 林若萌 这座礼堂承载着厦大学子的毕业典礼,也同样是一座中西合璧的气派建筑。",
-    },
-    {
-      content: "胡里山炮台",
-      position: [118.112612, 24.435458],
-      description:
-        "胡里山炮台（胡里山礮台）位于中国福建省厦门市厦门岛东南海岬突出部，毗邻厦门大学园区，三面环海，景区系国家级文物保护单位、全国4A级旅游景区。",
-    },
-    {
-      content: "五缘湾公园",
-      position: [118.181566, 24.520184],
-      description:
-        "厦门五缘湾湿地公园是厦门五缘湾片区带动项目之一，占地85公顷，面积相当于半个鼓浪屿，是厦门最大的公园，也是最大的湿地生态园区，被称为是厦门的城市绿肺。",
-    },
-    {
-      content: "观音山",
-      position: [118.195137, 24.499667],
-      description:
-        "观音山海岸线上有很美的海滨浴场，来这里的游客一定要到干净的浴场上好好的尽兴一番，晒晒太阳玩玩水。主要景点 厦门观音山海滨旅游项目用地位于厦门东部，紧临环岛路，面向厦门东海域，与金门隔海相望",
-    },
-  ];
+  public dailyScenic: any[] = [];
   public active: number = 1;
-  public scenicArr: any = [
-    [
-      {
-        content: "厦门大学",
-        position: [118.108354, 24.44184],
-        description:
-          "上弦场是厦大出镜率最高的体育场,也是校园中最适合感受大学时光的地方。操场与海一街之隔,宽阔的区域不仅能一眼望到厦门最高的建筑双子塔(世茂海峡大厦),坐在倾斜的看台上还能与标志性的建南大礼堂合影留念。",
-      },
-      {
-        content: "胡里山炮台",
-        position: [118.112612, 24.435458],
-        description:
-          "胡里山炮台（胡里山礮台）位于中国福建省厦门市厦门岛东南海岬突出部，毗邻厦门大学园区，三面环海，景区系国家级文物保护单位、全国4A级旅游景区。",
-      },
-      {
-        content: "五缘湾公园",
-        position: [118.181566, 24.520184],
-        description:
-          "厦门五缘湾湿地公园是厦门五缘湾片区带动项目之一，占地85公顷，面积相当于半个鼓浪屿，是厦门最大的公园，也是最大的湿地生态园区，被称为是厦门的城市绿肺。",
-      },
-      {
-        content: "观音山",
-        position: [118.195137, 24.499667],
-        description:
-          "观音山海岸线上有很美的海滨浴场，来这里的游客一定要到干净的浴场上好好的尽兴一番，晒晒太阳玩玩水。主要景点 厦门观音山海滨旅游项目用地位于厦门东部，紧临环岛路，面向厦门东海域，与金门隔海相望",
-      },
-    ],
-    [
-      {
-        content: "观音山",
-        position: [118.195137, 24.499667],
-        description:
-          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      },
-      {
-        content: "海湾公园",
-        position: [118.082752, 24.479148],
-        description:
-          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      },
-      {
-        content: "曾厝安",
-        position: [118.133057, 24.432768],
-        description:
-          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      },
-    ],
-    [
-      {
-        content: "植物园",
-        position: [118.116583, 24.453247],
-        description:
-          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      },
-      {
-        content: "白城沙滩",
-        position: [118.10927, 24.43795],
-        description:
-          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      },
-    ],
-  ];
+  public scenicArr: any[] = [];
 
   // 步进器的点击事件
   public handleStepClick(index: number) {
     this.active = index;
+    this.dailyScenic = this.scenicArr[index - 1];
+    console.log(this.$store.state.sightList);
+
+    console.log(this.scenicArr[index - 1]);
   }
   // 点击进行路径规划,规划结束之后在地图上画出路线
   public generateMap() {
+    (this.$refs.mapId as any).scrollIntoView(false);
     const scenics = _.cloneDeep(this.scenicArr[this.active - 1]);
     const type: string = "driving";
     const origin = scenics.shift().position.join(",");
@@ -354,6 +308,150 @@ export default class Guide extends Vue {
       );
     }
   }
+
+  // 获取用户定位
+  public getPosition(res: any) {
+    const loading = this.$loading({
+      lock: true,
+      text: "正在根据你的当前定位进行合理路径推荐，请稍后！",
+      spinner: "el-icon-loading",
+      background: "rgba(0,0,0,0.7)",
+    });
+    const self = this;
+    const geolocation = new (AMap as any).Geolocation({
+      // 是否使用高精度定位，默认：true
+      enableHighAccuracy: true,
+      // 设置定位超时时间，默认：无穷大
+      timeout: 10000,
+    });
+    geolocation.getCurrentPosition(onComplete, onError);
+    function onComplete(status: string, result: any) {
+      // data是具体的定位信息
+      self.position[1] = result.position.lat;
+      self.position[0] = result.position.lng;
+      console.log("用户当前定位信息： ", self.position);
+      res[0] = { lng: self.position[0], lat: self.position[1] };
+      (self as any).$http
+        .get("/path/recommend", {
+          sightList: JSON.stringify(res),
+          isTsp: false,
+        })
+        .then((response: any) => {
+          console.log(response);
+          const sightArr = response.bestRouter.slice(1);
+          let arr = new Array(),
+            num = 1;
+          for (const value of sightArr) {
+            if (num % 5 === 0) {
+              console.log("list1", arr);
+              self.scenicArr.push(arr);
+              arr = new Array();
+              num = 1;
+            }
+            num++;
+            arr.push(self.$store.state.sightList[value - 1]);
+          }
+          if (arr.length) self.scenicArr.push(arr);
+          console.log("景点：", self.scenicArr);
+
+          self.dailyScenic = self.scenicArr[0];
+
+          console.log("景点列表", self.$store.state.sightList);
+          loading.close();
+        });
+    }
+
+    function onError(data: any) {
+      // 定位出错
+      self.$message({
+        showClose: true,
+        message: "定位出错。",
+        type: "warning",
+      });
+    }
+  }
+
+  // mounted 钩子
+  public mounted() {
+    const params = { key: "e422be5c1c55afc3ca294dee1d3db842" };
+    axios
+      .get("https://restapi.amap.com/v3/ip", {
+        params,
+      })
+      .then((res: any) => {
+        if (res.data.city === "厦门市") {
+          this.$message({
+            showClose: true,
+            message: "当前定位为厦门境内,以当前定位地址进行路径规划。",
+            type: "info",
+          });
+          // settimeout是为了加载地图组件，避免报错undefined
+          setTimeout(() => {
+            const args: any = {};
+            let key = 1;
+            for (const value of this.$store.state.sightList) {
+              const item = { lng: value.position[0], lat: value.position[1] };
+              args[key] = item;
+              key++;
+            }
+            this.getPosition(args);
+          }, 2000);
+        } else {
+          this.choiceShow = true;
+        }
+      });
+    // console.log("路径推荐：", this.$store.state.sightList);
+  }
+  // 处理厦门市外用户选择起点终点的方法
+  public handlePositionChoose(args: any) {
+    this.start = args.start;
+    this.desti = args.destination;
+    this.choiceShow = false;
+    const loading = this.$loading({
+      lock: true,
+      text: "正在根据你的当前定位进行合理路径推荐，请稍后！",
+      spinner: "el-icon-loading",
+      background: "rgba(0,0,0,0.7)",
+    });
+    // 起点终点是否一样
+    const isTsp: boolean = this.start.info === this.desti.info;
+    const argument: any = {
+      0: { lat: this.start.latitude, lng: this.start.longitude },
+    };
+    let key = 1;
+    for (const value of this.$store.state.sightList) {
+      const item = { lng: value.position[0], lat: value.position[1] };
+      argument[key] = item;
+      key++;
+    }
+    // 如果起点终点不一样的话
+    if (!isTsp)
+      argument[key] = { lat: this.desti.latitude, lng: this.desti.longitude };
+    (this as any).$http
+      .get("/path/recommend", { sightList: JSON.stringify(argument), isTsp })
+      .then((response: any) => {
+        console.log(response);
+        const sightArr = response.bestRouter.slice(1);
+        let arr = new Array(),
+          num = 1;
+        for (const value of sightArr) {
+          if (num % 5 === 0) {
+            console.log(arr);
+            this.scenicArr.push(arr);
+            arr = new Array();
+            num = 1;
+          }
+          num++;
+          arr.push(this.$store.state.sightList[value - 1]);
+        }
+        console.log("景点列表", this.scenicArr);
+
+        if (arr.length !== 0) this.scenicArr.push(arr);
+        this.dailyScenic = this.scenicArr[0];
+        console.log("景点列表", this.$store.state.sightList);
+        loading.close();
+      });
+  }
 }
 </script>
 
@@ -367,7 +465,7 @@ export default class Guide extends Vue {
   background-size: 100%;
   .scenic-choose {
     width: 100%;
-    height: 27rem;
+    height: 29rem;
     display: flex;
     margin-bottom: 1rem;
     .el-steps--vertical {
@@ -394,6 +492,7 @@ export default class Guide extends Vue {
       background: rgb(228, 224, 224);
       box-shadow: 0px 0px 10px 5px #aaa;
       p {
+        margin-bottom: 2rem;
         width: 100%;
         text-align: center;
       }
@@ -425,7 +524,7 @@ export default class Guide extends Vue {
           }
           .item-name {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
           }
         }
       }

@@ -34,8 +34,10 @@
         class="item"
         v-for="(item, i) in friends"
         :class="{ active: isActive[i] }"
-        :key="i"
+        :key="i + '-only'"
         @click="chooseReciever(i)"
+        @click.right="rightEvent(item.friendName)"
+        @contextmenu.prevent
       >
         <div class="userInfo">
           <el-avatar :src="item.avatarUrl || avatarUrl[0]"></el-avatar>
@@ -76,15 +78,17 @@
               <p class="time"><span v-text="item.send_time"></span></p>
               <div
                 class="infoItem"
-                :class="item.send_id == userName ? 'msg-right' : 'msg-left'"
+                :class="item.send_id === userName ? 'msg-right' : 'msg-left'"
               >
                 <el-avatar
-                  :src="item.send_id == userName ? myAvatarUrl : friendUrl"
-                  title="查看好友信息"
+                  :src="item.send_id === userName ? myAvatarUrl : friendUrl"
+                  title="右键查看好友信息"
                   shape="square"
                 ></el-avatar>
                 <div
-                  :class="item.send_id == userName ? 'text-right' : 'text-left'"
+                  :class="
+                    item.send_id === userName ? 'text-right' : 'text-left'
+                  "
                 >
                   <span class="span-left"></span>
                   <p v-if="!item.msgType">{{ item.send_msg }}</p>
@@ -161,6 +165,12 @@
       @cancle="handleCancle"
       @confirm="handleConfirm"
     ></addfriend>
+    <friendInfo
+      :isShow="friendInfoShow"
+      :friendId="friendId"
+      @cancle="friendInfoCancle"
+      @deleteFriend="deleteFriend"
+    ></friendInfo>
     <editMyInfo :isShow="editInfoShow" @close="closeEditInfo"></editMyInfo>
     <!-- 点击查看大图 -->
     <pictureBoost
@@ -196,15 +206,19 @@
 <script lang='ts'>
 import { Component, Vue, Watch } from "vue-property-decorator";
 import addfriend from "../components/Intercourse/addfriend.vue";
+import friendInfo from "../components/Intercourse/friendInfo.vue";
 import editMyInfo from "../components/Intercourse/personalInfo.vue";
 import pictureBoost from "../components/Intercourse/picture-boost.vue";
 import videoCall from "../components/Intercourse/videoCall.vue";
 import Recorderx, { ENCODE_TYPE } from "recorderx";
 import { blobToBase64, eventBus } from "@/utils/index";
 @Component({
-  components: { addfriend, editMyInfo, pictureBoost, videoCall },
+  components: { addfriend, editMyInfo, pictureBoost, videoCall, friendInfo },
 })
 export default class Intercourse extends Vue {
+  // 显示好友个人信息
+  public friendInfoShow: boolean = false;
+  public friendId: string = "";
   // 视频通话组件的属性
   public videoMsg: any = {};
   // 是否视频通话
@@ -242,7 +256,7 @@ export default class Intercourse extends Vue {
   public value: string = "";
   // 发送的消息
   public inputValue: string = "";
-  public path: string = "ws://192.168.1.106:3001?id=";
+  public path: string = "ws://192.168.1.111:3001?id=";
   public socket: any = {};
   // 在线好友
   public onlineFriend: string[] = [];
@@ -500,6 +514,11 @@ export default class Intercourse extends Vue {
     }
     this.scrollToBottom();
   }
+  // 好友列表右键事件
+  public rightEvent(friend: any) {
+    this.friendInfoShow = true;
+    this.friendId = friend;
+  }
   public beforeDestroy() {
     // 销毁监听,实际操作中页面刷新时不会触发这个事件
     this.socket.onclose = this.close;
@@ -574,9 +593,19 @@ export default class Intercourse extends Vue {
     info.send_name = this.userName;
     this.send(JSON.stringify(info));
   }
+  // 查看好友信息弹窗关闭
+  public friendInfoCancle() {
+    this.friendInfoShow = false;
+  }
+  // 删除好友
+  public deleteFriend() {
+    this.friendInfoShow = false;
+    this.getFriendList(function () {});
+  }
   // 关闭编辑信息弹窗
   public closeEditInfo() {
     this.editInfoShow = false;
+    this.myAvatarUrl = sessionStorage.getItem("avatarUrl") || "";
   }
   // 打开编辑信息弹窗
   public openEditInfo() {
@@ -682,13 +711,28 @@ export default class Intercourse extends Vue {
   }
   // 结束录音
   public stopRecord() {
-    this.$message({
-      showClose: true,
-      message: "录音完成！",
-      type: "success",
-    });
     this.statusaudio = true;
     this.rc.pause();
+    const wav = this.rc.getRecord({
+      encodeTo: ENCODE_TYPE.WAV,
+      compressible: true,
+    });
+    if (wav.size < 20000) {
+      this.$message({
+        showClose: true,
+        message: "录音时间过短！",
+        type: "warning",
+      });
+      this.rc.clear();
+      this.statusaudio = false;
+      return;
+    } else {
+      this.$message({
+        showClose: true,
+        message: "录音完成！",
+        type: "success",
+      });
+    }
     this.sendRecord();
   }
   // 发送录音
@@ -876,6 +920,7 @@ export default class Intercourse extends Vue {
         }
       }
       #addSign {
+        cursor: pointer;
         height: 30px;
         width: 30px;
         display: flex;
