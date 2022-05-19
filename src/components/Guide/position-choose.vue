@@ -95,10 +95,10 @@ export default class PositionChoose extends Vue {
       });
     }
     const start = this.positionInfo.find(
-      (item) => item.info == this.startPosition
+      (item) => item.info === this.startPosition
     );
     const destination = this.positionInfo.find(
-      (item) => item.info == this.destination
+      (item) => item.info === this.destination
     );
     console.log(start, destination);
 

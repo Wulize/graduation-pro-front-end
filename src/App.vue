@@ -75,7 +75,7 @@ export default class App extends Vue {
         .then((res: any) => {
           this.$store.state.unreadMsg = res.MsgNum;
         });
-    }, 4000);
+    }, 6000);
   }
 }
 </script>
