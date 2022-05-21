@@ -376,7 +376,7 @@ export default class extends Vue {
     margin-top: 90px;
     .sight-list {
       height: 100%;
-      background: rgba($color: white, $alpha: 0.6);
+      background: rgba($color: white, $alpha: 1);
       display: flex;
       justify-content: center;
       position: relative;
@@ -384,6 +384,7 @@ export default class extends Vue {
       div {
         height: 100%;
         font-size: 18px;
+        color: rgba($color: black, $alpha: 0.6);
         padding-left: 15px;
         padding-right: 15px;
         display: flex;
@@ -392,14 +393,22 @@ export default class extends Vue {
         border-right: 1px solid lightgray;
         cursor: pointer;
         &:hover {
-          border-bottom: 3px solid lightgray;
+          // border-bottom: 3px solid lightblue;
+          color: white;
+          font-weight: bold;
+          background: linear-gradient(
+            to right,
+            white,
+            rgb(197, 222, 228),
+            white
+          );
         }
       }
       .normal-div {
         color: gray;
       }
       .selected-div {
-        background: orange;
+        background: rgb(184, 210, 219);
         color: white;
       }
       & :nth-child(6) {
@@ -441,9 +450,7 @@ export default class extends Vue {
         &:hover {
           cursor: pointer;
           opacity: 0.8;
-          span {
-            color: orange;
-          }
+          transform: scale(1.2);
         }
       }
       /*过滤多个元素*/
@@ -457,25 +464,26 @@ export default class extends Vue {
       height: 100%;
       position: relative;
       white-space: pre-wrap; /* 使得文本中的换行符生效  */
-      background-image: url('~@/assets/images/sight/sight01.jpg');
-      background-size: cover;
+      // background-image: url('~@/assets/images/sight/sight01.jpg');
+      // background-size: cover;
+      background: white;
       .back-btn {
         position: absolute;
         left: 0;
         top: 0;
         width: 50px;
-        height: 50px;
+        height: 30px;
         display: flex;
         justify-content: center;
         align-items: center;
         font-size: 18px;
         background: rgba($color: white, $alpha: 0.6);
         box-shadow: 0 0 10px lightgray;
-        border-radius: 0 0 50px 0;
+        // border-radius: 0 0 50px 0;
         border: none;
         &:hover {
           color: white;
-          background: orange;
+          background: lightblue;
         }
       }
       .sight-info {
@@ -485,18 +493,24 @@ export default class extends Vue {
         .sight-name {
           font-size: 45px;
           text-align: center;
-          margin-top: 3%;
+          margin-top: 4%;
           width: 90%;
           margin-left: 5%;
-          background: rgba($color: white, $alpha: 0.6);
+          // background: rgba($color: orange, $alpha: 0.3);
+          background: linear-gradient(
+            to right,
+            white,
+            rgb(191, 224, 235),
+            white
+          );
           box-shadow: 0 0 10px lightgray;
-          color: gray;
+          color: rgb(179, 176, 176);
         }
         .sight-images {
           width: 90%;
           height: 80%;
           margin-left: 5%;
-          margin-top: 3%;
+          margin-top: 4%;
           display: flex;
           .image-big {
             width: 70%;
@@ -522,19 +536,31 @@ export default class extends Vue {
         .sight-summary {
           width: 90%;
           margin-left: 5%;
-          margin-top: 3%;
+          margin-top: 4%;
           font-size: 18px;
+          color: rgba($color: black, $alpha: 0.7);
           line-height: 25px;
-          background: rgba($color: white, $alpha: 0.6);
+          background: linear-gradient(
+            to bottom,
+            white,
+            rgb(191, 224, 235),
+            white
+          );
           box-shadow: 0 0 10px lightgray;
         }
         .other-info {
           width: 90%;
           margin-left: 5%;
-          margin-top: 3%;
+          margin-top: 4%;
           display: flex;
-          font-size: 16px;
-          background: rgba($color: white, $alpha: 0.6);
+          font-size: 18px;
+          color: rgba($color: black, $alpha: 0.7);
+          background: linear-gradient(
+            to bottom,
+            white,
+            rgb(191, 224, 235),
+            white
+          );
           box-shadow: 0 0 10px lightgray;
           margin-bottom: 5%;
           .time {
@@ -542,53 +568,79 @@ export default class extends Vue {
           }
         }
         .sight-transportation {
+          color: rgba($color: black, $alpha: 0.7);
           width: 90%;
           margin-left: 5%;
-          margin-top: 3%;
-          font-size: 16px;
+          margin-top: 4%;
+          font-size: 18px;
           line-height: 25px;
-          background: rgba($color: white, $alpha: 0.6);
+          background: linear-gradient(
+            to bottom,
+            white,
+            rgb(191, 224, 235),
+            white
+          );
           box-shadow: 0 0 10px lightgray;
         }
         .sight-ticket {
           width: 90%;
           margin-left: 5%;
-          margin-top: 3%;
-          font-size: 16px;
+          margin-top: 4%;
+          font-size: 18px;
+          color: rgba($color: black, $alpha: 0.7);
           line-height: 25px;
-          background: rgba($color: white, $alpha: 0.6);
+          background: linear-gradient(
+            to bottom,
+            white,
+            rgb(191, 224, 235),
+            white
+          );
           box-shadow: 0 0 10px lightgray;
         }
         .sight-opening {
           width: 90%;
           margin-left: 5%;
-          margin-top: 3%;
-          font-size: 16px;
+          margin-top: 4%;
+          font-size: 18px;
+          color: rgba($color: black, $alpha: 0.7);
           line-height: 25px;
-          background: rgba($color: white, $alpha: 0.6);
+          background: linear-gradient(
+            to bottom,
+            white,
+            rgb(191, 224, 235),
+            white
+          );
           box-shadow: 0 0 10px lightgray;
         }
       }
     }
     .left-arrow {
       position: absolute;
-      left: -50px;
+      left: -42px;
       top: calc(50% - 25px);
       .next-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 30px;
+        width: 40px;
+        height: 40px;
+        font-size: 25px;
         display: flex;
         justify-content: center;
         align-items: center;
         border-radius: 50%;
-        background: rgba($color: white, $alpha: 0.6);
+        background: rgba($color: white, $alpha: 1);
         box-shadow: 0 0 10px lightgray;
-        color: gray;
+        color: rgba($color: black, $alpha: 0.6);
         &:hover {
-          background: orange;
+          background: lightblue;
           color: white;
-          animation: btn_rotate 3s infinite;
+          animation: btn_rotate 2s infinite;
+        }
+      }
+      @keyframes btn_rotate {
+        0% {
+          transform: rotate(0);
+        }
+        100% {
+          transform: rotate(360deg);
         }
       }
     }
@@ -597,19 +649,20 @@ export default class extends Vue {
       left: 100%;
       top: calc(50% - 25px);
       .next-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 30px;
+        width: 40px;
+        height: 40px;
+        font-size: 25px;
         display: flex;
         justify-content: center;
         align-items: center;
         border-radius: 50%;
-        background: rgba($color: white, $alpha: 0.6);
+        background: rgba($color: white, $alpha: 1);
         box-shadow: 0 0 10px lightgray;
-        color: gray;
+        color: rgba($color: black, $alpha: 0.6);
         &:hover {
-          background: orange;
+          background: lightblue;
           color: white;
+          animation: btn_rotate 2s infinite;
         }
       }
     }

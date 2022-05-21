@@ -2,33 +2,21 @@
   <div class="guide-wrapper">
     <div class="scenic-choose">
       <el-steps :active="0" direction="vertical" class="step-style">
-        <el-step
-          v-for="(item, index) in scenicArr"
-          :key="index"
-          :title="`第 ${index + 1} 天`"
-          @click.native="handleStepClick(index + 1)"
-        ></el-step>
+        <el-step v-for="(item, index) in scenicArr" :key="index" :title="`第 ${index + 1} 天`" @click.native="handleStepClick(index + 1)"></el-step>
       </el-steps>
       <div class="scenic-detail">
         <p>第{{ active }}天的游览景点推荐</p>
         <div class="scenic-introduce">
-          <div
-            class="detail-item"
-            v-for="(item, index) in scenicArr[active - 1]"
-            :key="index"
-          >
+          <div class="detail-item" v-for="(item, index) in scenicArr[active - 1]" :key="index">
             <div class="item-name">
               {{ (item || {}).content || "无" }}
             </div>
-            <div
-              class="item-introduction"
-              style="
+            <div class="item-introduction" style="
                 overflow: hidden;
                 display: -webkit-box;
                 -webkit-box-orient: vertical;
                 -webkit-line-clamp: 10;
-              "
-            >
+              ">
               {{ (item || {}).description || "暂无相关介绍" }}
             </div>
             <!-- <div class="food-introduction">
@@ -37,9 +25,7 @@
           </div>
         </div>
         <div class="generate-button">
-          <el-button type="success" @click="generateMap"
-            >生成可视化路线</el-button
-          >
+          <el-button type="success" @click="generateMap">生成可视化路线</el-button>
         </div>
       </div>
     </div>
@@ -48,12 +34,7 @@
         <p class="info-title">路线推荐结果</p>
         <div class="info-detail">
           <div class="route-detail">
-            <p
-              v-for="(item, index) in dailyScenic"
-              :key="index"
-              title="点击查看具体信息"
-              @click="chooseRoute(index)"
-            >
+            <p v-for="(item, index) in dailyScenic" :key="index" title="点击查看具体信息" @click="chooseRoute(index)">
               {{
                 `${
                   index !== dailyScenic.length - 1
@@ -100,102 +81,83 @@
         </div>
       </div>
       <div class="map-wrap" ref="mapId">
-        <amap
-          cache-key="home-map"
-          map-style="amap://styles/whitesmoke"
-          :zoom="12"
-          resizeEnable="true"
-          :center="[118.129625, 24.479833]"
-        >
-          <amap-marker
-            v-for="(item, index) in dailyScenic"
-            :key="index"
-            :position="item.position"
-            :label="{
+        <amap cache-key="home-map" map-style="amap://styles/whitesmoke" :zoom="12" resizeEnable="true" :center="[118.129625, 24.479833]">
+          <amap-marker v-for="(item, index) in dailyScenic" :key="index" :position="item.position" :label="{
               content: `${(item || {}).content || '暂无'}`,
               direction: 'bottom',
-            }"
-          />
-          <amap-polyline
-            v-show="path.length !== 0"
-            :editable="editable"
-            :path.sync="path"
-            :stroke-weight="4"
-          ></amap-polyline>
+            }" />
+          <amap-polyline v-show="path.length !== 0" :editable="editable" :path.sync="path" :stroke-weight="4"></amap-polyline>
         </amap>
       </div>
     </div>
-    <PositionChoose
-      v-if="choiceShow"
-      @posChooseClose="handlePositionChoose"
-    ></PositionChoose>
+    <PositionChoose v-if="choiceShow" @posChooseClose="handlePositionChoose"></PositionChoose>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
-import axios from "axios";
-import * as _ from "lodash";
-import PositionChoose from "../components/Guide/position-choose.vue";
+import { Vue, Component, Watch } from 'vue-property-decorator'
+import axios from 'axios'
+import * as _ from 'lodash'
+import PositionChoose from '../components/Guide/position-choose.vue'
 @Component({
   components: { PositionChoose },
 })
 export default class Guide extends Vue {
   //  他市用户选择的路径规划起点、终点
   public start: any = {
-    latitude: "",
-    longitude: "",
-    info: "",
-  };
+    latitude: '',
+    longitude: '',
+    info: '',
+  }
   public desti: any = {
-    latitude: "",
-    longitude: "",
-    info: "",
-  };
+    latitude: '',
+    longitude: '',
+    info: '',
+  }
   // 本市用户当前用户的经纬度
-  public position: any = new Array(2);
+  public position: any = new Array(2)
   // 用户定位不在厦门市时，展示用户起点终点选择界面
-  public choiceShow: boolean = false;
-  public userName: string = sessionStorage.getItem("userName") || "";
+  public choiceShow: boolean = false
+  public userName: string = sessionStorage.getItem('userName') || ''
   // 出行方式的信息
   public modeItemInfo: any = {
     distance: 0,
     time: 0,
     cost: 0,
-    mode: "暂无选择",
-  };
-  public origin: any = {};
-  public destination: any = {};
-  public path: any[] = [[118.108354, 24.44184]];
-  public editable: boolean = true;
+    mode: '暂无选择',
+  }
+  public origin: any = {}
+  public destination: any = {}
+  public path: any[] = [[118.108354, 24.44184]]
+  public editable: boolean = true
   //  算法返回的当天旅游建议
-  public dailyScenic: any[] = [];
-  public active: number = 1;
-  public scenicArr: any[] = [];
+  public dailyScenic: any[] = []
+  public active: number = 1
+  public scenicArr: any[] = []
 
   // 步进器的点击事件
   public handleStepClick(index: number) {
-    this.active = index;
-    this.dailyScenic = this.scenicArr[index - 1];
-    console.log(this.$store.state.sightList);
+    this.active = index
+    this.dailyScenic = this.scenicArr[index - 1]
+    console.log(this.$store.state.sightList)
 
-    console.log(this.scenicArr[index - 1]);
+    console.log(this.scenicArr[index - 1])
   }
   // 点击进行路径规划,规划结束之后在地图上画出路线
   public generateMap() {
-    (this.$refs.mapId as any).scrollIntoView(false);
-    const scenics = _.cloneDeep(this.scenicArr[this.active - 1]);
-    const type: string = "driving";
-    const origin = scenics.shift().position.join(",");
-    const destination = scenics.pop().position.join(",");
-    let waypoints = "";
+    ;(this.$refs.mapId as any).scrollIntoView(false)
+    const scenics = _.cloneDeep(this.scenicArr[this.active - 1])
+    const type: string = 'driving'
+    const origin = scenics.shift().position.join(',')
+    const destination = scenics.pop().position.join(',')
+    let waypoints = ''
     scenics.forEach((element: any, index: number) => {
       waypoints +=
         index === scenics.length - 1
-          ? element.position.join(",")
-          : element.position.join(",") + ";";
-    });
-    this.getGaodeRoute(type, origin, destination, waypoints);
+          ? element.position.join(',')
+          : element.position.join(',') + ';'
+    })
+    this.getGaodeRoute(type, origin, destination, waypoints)
   }
   // 获取两点之间的路线图
   public getGaodeRoute(
@@ -204,70 +166,70 @@ export default class Guide extends Vue {
     destination: string,
     waypoints: string
   ) {
-    let params = {};
-    const key = "e422be5c1c55afc3ca294dee1d3db842";
-    if (type === "driving") {
+    let params = {}
+    const key = 'e422be5c1c55afc3ca294dee1d3db842'
+    if (type === 'driving') {
       params = {
         key,
         origin,
         destination,
         waypoints,
-      };
-    } else if (type === "walking") {
-      params = { key, origin, destination };
+      }
+    } else if (type === 'walking') {
+      params = { key, origin, destination }
     } else {
-      params = { key, origin, destination, city: "厦门", strategy: 5 };
+      params = { key, origin, destination, city: '厦门', strategy: 5 }
     }
     axios
-      .get("https://restapi.amap.com/v3/direction/" + type, {
+      .get('https://restapi.amap.com/v3/direction/' + type, {
         params,
       })
       .then((res: any) => {
         // 非公交车
-        this.path = [];
-        if (type !== "transit/integrated") {
-          this.modeItemInfo.distance = res.data.route.paths[0].distance || 0;
-          this.modeItemInfo.time = res.data.route.paths[0].duration || 0;
-          this.modeItemInfo.cost = res.data.route.taxi_cost || 0;
-          this.modeItemInfo.mode = "目前仅提供公交信息";
+        this.path = []
+        if (type !== 'transit/integrated') {
+          this.modeItemInfo.distance = res.data.route.paths[0].distance || 0
+          this.modeItemInfo.time = res.data.route.paths[0].duration || 0
+          this.modeItemInfo.cost = res.data.route.taxi_cost || 0
+          this.modeItemInfo.mode = '目前仅提供公交信息'
 
-          const route = res.data.route.paths[0].steps;
+          const route = res.data.route.paths[0].steps
           route.forEach((element: any) => {
-            let polylineItem = [];
-            element.polyline.split(";").forEach((item: any) => {
-              polylineItem = item.split(",");
-              polylineItem[0] = Number(polylineItem[0]);
-              polylineItem[1] = Number(polylineItem[1]);
-              this.path.push(polylineItem);
-            });
-          });
+            let polylineItem = []
+            element.polyline.split(';').forEach((item: any) => {
+              polylineItem = item.split(',')
+              polylineItem[0] = Number(polylineItem[0])
+              polylineItem[1] = Number(polylineItem[1])
+              this.path.push(polylineItem)
+            })
+          })
         } else {
           // this.modeItemInfo.distance = res.data.route.paths[0].distance || 0;
           // this.modeItemInfo.time = res.data.route.paths[0].duration || 0;
-          this.modeItemInfo.cost = res.data.route.transits[0].cost || 0;
-          const route = res.data.route.transits;
-          this.modeItemInfo.mode = "步行";
-          this.modeItemInfo.distance = route[0].distance;
-          this.modeItemInfo.time = route[0].duration;
-          this.modeItemInfo.mode += `->${route[0].segments[0].bus.buslines[0].name}`;
+          this.modeItemInfo.cost = res.data.route.transits[0].cost || 0
+          const route = res.data.route.transits
+          this.modeItemInfo.mode = '步行'
+          this.modeItemInfo.distance = route[0].distance
+          this.modeItemInfo.time = route[0].duration
+          this.modeItemInfo.mode += `->${route[0].segments[0].bus.buslines[0].name}`
           route[0].segments[0].bus.buslines[0].polyline
-            .split(";")
+            .split(';')
             .forEach((part: any) => {
-              let polylineItem = [];
-              polylineItem = part.split(",");
-              polylineItem[0] = Number(polylineItem[0]);
-              polylineItem[1] = Number(polylineItem[1]);
-              this.path.push(polylineItem);
-            });
+              let polylineItem = []
+              polylineItem = part.split(',')
+              polylineItem[0] = Number(polylineItem[0])
+              polylineItem[1] = Number(polylineItem[1])
+              this.path.push(polylineItem)
+            })
         }
-      });
+      })
   }
 
   // 选择推荐路段生成推荐信息
   public chooseRoute(index: number) {
     if (index !== this.dailyScenic.length - 1) {
-      this.origin = this.dailyScenic[index];
-      this.destination = this.dailyScenic[index + 1];
+      this.origin = this.dailyScenic[index]
+      this.destination = this.dailyScenic[index + 1]
     }
   }
 
@@ -276,36 +238,36 @@ export default class Guide extends Vue {
     if (!this.origin.position) {
       this.$message({
         showClose: true,
-        message: "请选择一个路段！",
-        type: "warning",
-      });
-      return;
+        message: '请选择一个路段！',
+        type: 'warning',
+      })
+      return
     }
     // 步行
     if (index === 1) {
-      const type: string = "walking";
+      const type: string = 'walking'
       this.getGaodeRoute(
         type,
-        this.origin.position.join(","),
-        this.destination.position.join(","),
-        ""
-      );
+        this.origin.position.join(','),
+        this.destination.position.join(','),
+        ''
+      )
     } else if (index === 2) {
-      const type: string = "transit/integrated";
+      const type: string = 'transit/integrated'
       this.getGaodeRoute(
         type,
-        this.origin.position.join(","),
-        this.destination.position.join(","),
-        "厦门"
-      );
+        this.origin.position.join(','),
+        this.destination.position.join(','),
+        '厦门'
+      )
     } else {
-      const type: string = "driving";
+      const type: string = 'driving'
       this.getGaodeRoute(
         type,
-        this.origin.position.join(","),
-        this.destination.position.join(","),
-        ""
-      );
+        this.origin.position.join(','),
+        this.destination.position.join(','),
+        ''
+      )
     }
   }
 
@@ -313,144 +275,144 @@ export default class Guide extends Vue {
   public getPosition(res: any) {
     const loading = this.$loading({
       lock: true,
-      text: "正在根据你的当前定位进行合理路径推荐，请稍后！",
-      spinner: "el-icon-loading",
-      background: "rgba(0,0,0,0.7)",
-    });
-    const self = this;
+      text: '正在根据你的当前定位进行合理路径推荐，请稍后！',
+      spinner: 'el-icon-loading',
+      background: 'rgba(0,0,0,0.7)',
+    })
+    const self = this
     const geolocation = new (AMap as any).Geolocation({
       // 是否使用高精度定位，默认：true
       enableHighAccuracy: true,
       // 设置定位超时时间，默认：无穷大
       timeout: 10000,
-    });
-    geolocation.getCurrentPosition(onComplete, onError);
+    })
+    geolocation.getCurrentPosition(onComplete, onError)
     function onComplete(status: string, result: any) {
       // data是具体的定位信息
-      self.position[1] = result.position.lat;
-      self.position[0] = result.position.lng;
-      console.log("用户当前定位信息： ", self.position);
-      res[0] = { lng: self.position[0], lat: self.position[1] };
-      (self as any).$http
-        .get("/path/recommend", {
+      self.position[1] = 24.436343
+      self.position[0] = 118.102576
+      console.log('用户当前定位信息： ', self.position)
+      res[0] = { lng: self.position[0], lat: self.position[1] }
+      ;(self as any).$http
+        .get('/path/recommend', {
           sightList: JSON.stringify(res),
           isTsp: false,
         })
         .then((response: any) => {
-          console.log(response);
-          const sightArr = response.bestRouter.slice(1);
+          console.log(response)
+          const sightArr = response.bestRouter.slice(1)
           let arr = new Array(),
-            num = 1;
+            num = 1
           for (const value of sightArr) {
             if (num % 5 === 0) {
-              console.log("list1", arr);
-              self.scenicArr.push(arr);
-              arr = new Array();
-              num = 1;
+              console.log('list1', arr)
+              self.scenicArr.push(arr)
+              arr = new Array()
+              num = 1
             }
-            num++;
-            arr.push(self.$store.state.sightList[value - 1]);
+            num++
+            arr.push(self.$store.state.sightList[value - 1])
           }
-          if (arr.length) self.scenicArr.push(arr);
-          console.log("景点：", self.scenicArr);
+          if (arr.length) self.scenicArr.push(arr)
+          console.log('景点：', self.scenicArr)
 
-          self.dailyScenic = self.scenicArr[0];
+          self.dailyScenic = self.scenicArr[0]
 
-          console.log("景点列表", self.$store.state.sightList);
-          loading.close();
-        });
+          console.log('景点列表', self.$store.state.sightList)
+          loading.close()
+        })
     }
 
     function onError(data: any) {
       // 定位出错
       self.$message({
         showClose: true,
-        message: "定位出错。",
-        type: "warning",
-      });
+        message: '定位出错。',
+        type: 'warning',
+      })
     }
   }
 
   // mounted 钩子
   public mounted() {
-    const params = { key: "e422be5c1c55afc3ca294dee1d3db842" };
+    const params = { key: 'e422be5c1c55afc3ca294dee1d3db842' }
     axios
-      .get("https://restapi.amap.com/v3/ip", {
+      .get('https://restapi.amap.com/v3/ip', {
         params,
       })
       .then((res: any) => {
-        if (res.data.city === "厦门市") {
+        if (res.data.city === '厦门市') {
           this.$message({
             showClose: true,
-            message: "当前定位为厦门境内,以当前定位地址进行路径规划。",
-            type: "info",
-          });
+            message: '当前定位为厦门境内,以当前定位地址进行路径规划。',
+            type: 'info',
+          })
           // settimeout是为了加载地图组件，避免报错undefined
           setTimeout(() => {
-            const args: any = {};
-            let key = 1;
+            const args: any = {}
+            let key = 1
             for (const value of this.$store.state.sightList) {
-              const item = { lng: value.position[0], lat: value.position[1] };
-              args[key] = item;
-              key++;
+              const item = { lng: value.position[0], lat: value.position[1] }
+              args[key] = item
+              key++
             }
-            this.getPosition(args);
-          }, 2000);
+            this.getPosition(args)
+          }, 2000)
         } else {
-          this.choiceShow = true;
+          this.choiceShow = true
         }
-      });
+      })
     // console.log("路径推荐：", this.$store.state.sightList);
   }
   // 处理厦门市外用户选择起点终点的方法
   public handlePositionChoose(args: any) {
-    this.start = args.start;
-    this.desti = args.destination;
-    this.choiceShow = false;
+    this.start = args.start
+    this.desti = args.destination
+    this.choiceShow = false
     const loading = this.$loading({
       lock: true,
-      text: "正在根据你的当前定位进行合理路径推荐，请稍后！",
-      spinner: "el-icon-loading",
-      background: "rgba(0,0,0,0.7)",
-    });
+      text: '正在根据你的当前定位进行合理路径推荐，请稍后！',
+      spinner: 'el-icon-loading',
+      background: 'rgba(0,0,0,0.7)',
+    })
     // 起点终点是否一样
-    const isTsp: boolean = this.start.info === this.desti.info;
+    const isTsp: boolean = this.start.info === this.desti.info
     const argument: any = {
       0: { lat: this.start.latitude, lng: this.start.longitude },
-    };
-    let key = 1;
+    }
+    let key = 1
     for (const value of this.$store.state.sightList) {
-      const item = { lng: value.position[0], lat: value.position[1] };
-      argument[key] = item;
-      key++;
+      const item = { lng: value.position[0], lat: value.position[1] }
+      argument[key] = item
+      key++
     }
     // 如果起点终点不一样的话
     if (!isTsp)
-      argument[key] = { lat: this.desti.latitude, lng: this.desti.longitude };
-    (this as any).$http
-      .get("/path/recommend", { sightList: JSON.stringify(argument), isTsp })
+      argument[key] = { lat: this.desti.latitude, lng: this.desti.longitude }
+    ;(this as any).$http
+      .get('/path/recommend', { sightList: JSON.stringify(argument), isTsp })
       .then((response: any) => {
-        console.log(response);
-        const sightArr = response.bestRouter.slice(1);
+        console.log(response)
+        const sightArr = response.bestRouter.slice(1)
         let arr = new Array(),
-          num = 1;
+          num = 1
         for (const value of sightArr) {
           if (num % 5 === 0) {
-            console.log(arr);
-            this.scenicArr.push(arr);
-            arr = new Array();
-            num = 1;
+            console.log(arr)
+            this.scenicArr.push(arr)
+            arr = new Array()
+            num = 1
           }
-          num++;
-          arr.push(this.$store.state.sightList[value - 1]);
+          num++
+          arr.push(this.$store.state.sightList[value - 1])
         }
-        console.log("景点列表", this.scenicArr);
+        console.log('景点列表', this.scenicArr)
 
-        if (arr.length !== 0) this.scenicArr.push(arr);
-        this.dailyScenic = this.scenicArr[0];
-        console.log("景点列表", this.$store.state.sightList);
-        loading.close();
-      });
+        if (arr.length !== 0) this.scenicArr.push(arr)
+        this.dailyScenic = this.scenicArr[0]
+        console.log('景点列表', this.$store.state.sightList)
+        loading.close()
+      })
   }
 }
 </script>
@@ -461,7 +423,7 @@ export default class Guide extends Vue {
   display: flex;
   flex-direction: column;
   padding-top: 90px;
-  background-image: url("../assets/images/home/home01.jpg");
+  background-image: url('../assets/images/home/home01.jpg');
   background-size: 100%;
   .scenic-choose {
     width: 100%;

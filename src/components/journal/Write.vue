@@ -313,19 +313,19 @@ export default class extends Vue {
     margin-top: 30px;
     width: 100%;
     display: flex;
-    background-image: linear-gradient(
-      rgba(lightblue, 0.8) 0,
-      rgba(lightblue, 0.8) 20%,
-      rgba(white, 0.8) 0,
-      rgba(white, 0.8) 40%,
-      rgba(lightblue, 0.8) 0,
-      rgba(lightblue, 0.8) 60%,
-      rgba(white, 0.8) 0,
-      rgba(white, 0.8) 80%,
-      rgba(lightblue, 0.8) 0,
-      rgba(lightblue, 0.8) 100%
-    );
-    background-size: 100%;
+    // background-image: linear-gradient(
+    //   rgba(lightgreen, 1) 0,
+    //   rgba(lightgreen, 1) 20%,
+    //   rgba(white, 1) 0,
+    //   rgba(white, 1) 40%,
+    //   rgba(lightgreen, 1) 0,
+    //   rgba(lightgreen, 1) 60%,
+    //   rgba(white, 1) 0,
+    //   rgba(white, 1) 80%,
+    //   rgba(lightgreen, 1) 0,
+    //   rgba(lightgreen, 1) 100%
+    // );
+    // background: linear-gradient(white, lightgreen, white);
     box-shadow: 0 0 10px white;
     .journal-content {
       /* 游记正文 */
@@ -337,12 +337,14 @@ export default class extends Vue {
       flex-direction: column;
       text-align: center;
       // justify-content: space-evenly;
-
+      background-image: url('~@/assets/images/journal/journal01.jpg');
+      background-size: cover;
       // line-height: ;
       .journal-title {
         /* 游记标题 */
         width: 100%;
         margin-top: 35%;
+        // background: white;
         .el-input__inner {
           width: 80%;
           height: 45px;
@@ -398,12 +400,26 @@ export default class extends Vue {
         /* 游记提交  */
         margin-top: 12%;
         .el-button {
-          width: 80%;
-          height: 45px;
+          width: 300px;
+          height: 50px;
           color: gray;
+          font-size: 18px;
+          // display: flex;
+          // // justify-content: center;
+          // // align-items: center;
+          // // margin-left: 40px;
           &:hover {
             background: lightgreen;
             color: white;
+            animation: btnChange 5s;
+          }
+          @keyframes btnChange {
+            0% {
+              width: 300px;
+            }
+            100% {
+              width: 50px;
+            }
           }
         }
       }
