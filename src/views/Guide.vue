@@ -1,6 +1,7 @@
 <template>
   <div class="guide-wrapper">
     <div class="scenic-choose">
+<<<<<<< HEAD
       <el-steps :active="active" direction="vertical" class="step-style">
         <el-step
           v-for="(item, index) in scenicArr"
@@ -9,10 +10,15 @@
           :title="`第 ${index + 1} 天`"
           @click.native="handleStepClick(index)"
         ></el-step>
+=======
+      <el-steps :active="0" direction="vertical" class="step-style">
+        <el-step v-for="(item, index) in scenicArr" :key="index" :title="`第 ${index + 1} 天`" @click.native="handleStepClick(index + 1)"></el-step>
+>>>>>>> 43003b347c7ff45b7ff4ba4df8eced6724e1bc63
       </el-steps>
       <div class="scenic-detail">
         <h3>第{{ active + 1 }}天的游览景点推荐</h3>
         <div class="scenic-introduce">
+<<<<<<< HEAD
           <div
             class="detail-item"
             v-for="(item, index) in scenicArr[active]"
@@ -24,12 +30,18 @@
             <div
               class="item-introduction"
               style="
+=======
+          <div class="detail-item" v-for="(item, index) in scenicArr[active - 1]" :key="index">
+            <div class="item-name">
+              {{ (item || {}).content || "无" }}
+            </div>
+            <div class="item-introduction" style="
+>>>>>>> 43003b347c7ff45b7ff4ba4df8eced6724e1bc63
                 overflow: hidden;
                 display: -webkit-box;
                 -webkit-box-orient: vertical;
                 -webkit-line-clamp: 10;
-              "
-            >
+              ">
               {{ (item || {}).description || "暂无相关介绍" }}
             </div>
             <!-- <div class="food-introduction">
@@ -38,9 +50,13 @@
           </div>
         </div>
         <div class="generate-button">
+<<<<<<< HEAD
           <el-button type="primary" @click="generateMap"
             >生成可视化路线</el-button
           >
+=======
+          <el-button type="success" @click="generateMap">生成可视化路线</el-button>
+>>>>>>> 43003b347c7ff45b7ff4ba4df8eced6724e1bc63
         </div>
       </div>
     </div>
@@ -49,12 +65,7 @@
         <p class="info-title">路段出行信息</p>
         <div class="info-detail">
           <div class="route-detail">
-            <p
-              v-for="(item, index) in dailyScenic"
-              :key="index"
-              title="点击查看具体信息"
-              @click="chooseRoute(index)"
-            >
+            <p v-for="(item, index) in dailyScenic" :key="index" title="点击查看具体信息" @click="chooseRoute(index)">
               {{
                 `${
                   index !== dailyScenic.length - 1
@@ -101,35 +112,16 @@
         </div>
       </div>
       <div class="map-wrap" ref="mapId">
-        <amap
-          cache-key="home-map"
-          map-style="amap://styles/whitesmoke"
-          :zoom="12"
-          resizeEnable="true"
-          :center="[118.129625, 24.479833]"
-        >
-          <amap-marker
-            v-for="(item, index) in dailyScenic"
-            :key="index"
-            :position="item.position"
-            :label="{
+        <amap cache-key="home-map" map-style="amap://styles/whitesmoke" :zoom="12" resizeEnable="true" :center="[118.129625, 24.479833]">
+          <amap-marker v-for="(item, index) in dailyScenic" :key="index" :position="item.position" :label="{
               content: `${(item || {}).content || '暂无'}`,
               direction: 'bottom',
-            }"
-          />
-          <amap-polyline
-            v-show="path.length !== 0"
-            :editable="editable"
-            :path.sync="path"
-            :stroke-weight="4"
-          ></amap-polyline>
+            }" />
+          <amap-polyline v-show="path.length !== 0" :editable="editable" :path.sync="path" :stroke-weight="4"></amap-polyline>
         </amap>
       </div>
     </div>
-    <PositionChoose
-      v-if="choiceShow"
-      @posChooseClose="handlePositionChoose"
-    ></PositionChoose>
+    <PositionChoose v-if="choiceShow" @posChooseClose="handlePositionChoose"></PositionChoose>
   </div>
 </template>
 
@@ -358,7 +350,6 @@ export default class Guide extends Vue {
           // console.log("景点：", self.scenicArr);
 
           self.dailyScenic = self.scenicArr[0];
-
           // console.log("景点列表", self.$store.state.sightList);
           self.loading.close();
         });

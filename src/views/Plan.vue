@@ -2,39 +2,25 @@
   <div class="plan-wrapper">
     <div class="require-wrapper" v-if="showController1">
       <div class="time-chooser" @click="getChoosedTime">
-        <div
-          :class="['timer', timeChooser1 ? 'normal-timer' : 'choosed-timer']"
-        >
+        <div :class="['timer', timeChooser1 ? 'normal-timer' : 'choosed-timer']">
           1天
         </div>
-        <div
-          :class="['timer', timeChooser2 ? 'normal-timer' : 'choosed-timer']"
-        >
+        <div :class="['timer', timeChooser2 ? 'normal-timer' : 'choosed-timer']">
           2天
         </div>
-        <div
-          :class="['timer', timeChooser3 ? 'normal-timer' : 'choosed-timer']"
-        >
+        <div :class="['timer', timeChooser3 ? 'normal-timer' : 'choosed-timer']">
           3天
         </div>
-        <div
-          :class="['timer', timeChooser4 ? 'normal-timer' : 'choosed-timer']"
-        >
+        <div :class="['timer', timeChooser4 ? 'normal-timer' : 'choosed-timer']">
           4天
         </div>
-        <div
-          :class="['timer', timeChooser5 ? 'normal-timer' : 'choosed-timer']"
-        >
+        <div :class="['timer', timeChooser5 ? 'normal-timer' : 'choosed-timer']">
           5天
         </div>
-        <div
-          :class="['timer', timeChooser6 ? 'normal-timer' : 'choosed-timer']"
-        >
+        <div :class="['timer', timeChooser6 ? 'normal-timer' : 'choosed-timer']">
           6天
         </div>
-        <div
-          :class="['timer', timeChooser7 ? 'normal-timer' : 'choosed-timer']"
-        >
+        <div :class="['timer', timeChooser7 ? 'normal-timer' : 'choosed-timer']">
           7天
         </div>
       </div>
@@ -71,10 +57,7 @@
             <span>请输入你对心仪景点的描述</span>
           </div>
           <div class="input-wrapper">
-            <el-input
-              v-model="userInput"
-              placeholder="描述字数尽量多些哦~"
-            ></el-input>
+            <el-input v-model="userInput" placeholder="描述字数尽量多些哦~"></el-input>
           </div>
           <div class="window-btn">
             <el-button type="plain" @click="confirmInput">confirm</el-button>
@@ -90,28 +73,19 @@
           <el-button type="plain" @click="toRoutePlan">Next</el-button>
         </div>
         <div class="mode-wrapper">
-          <div
-            :class="['mode', modeChooser1 ? 'normal-mode' : 'choosed-mode']"
-            @click="toMode1"
-          >
+          <div :class="['mode', modeChooser1 ? 'normal-mode' : 'choosed-mode']" @click="toMode1">
             <div class="title">选择类别推荐</div>
             <div class="content">
               选择你喜欢的类别，系统会从该类别中推荐相应景点哦~
             </div>
           </div>
-          <div
-            :class="['mode', modeChooser2 ? 'normal-mode' : 'choosed-mode']"
-            @click="toMode2"
-          >
+          <div :class="['mode', modeChooser2 ? 'normal-mode' : 'choosed-mode']" @click="toMode2">
             <div class="title">输入描述推荐</div>
             <div class="content">
               如果你不确定自己喜欢的类别，可以写下你对心仪景点的描述哦~
             </div>
           </div>
-          <div
-            :class="['mode', modeChooser3 ? 'normal-mode' : 'choosed-mode']"
-            @click="toMode3"
-          >
+          <div :class="['mode', modeChooser3 ? 'normal-mode' : 'choosed-mode']" @click="toMode3">
             <div class="title">随机推荐</div>
             <div class="content">
               如果你有选择困难症，不妨试试随机推荐功能哦~
@@ -124,163 +98,167 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Vue, Watch } from 'vue-property-decorator'
 @Component({})
 export default class extends Vue {
-  public selectedTime: number = 1; // 旅行天数
-  public showController1: boolean = true; // 选择天数与选择模式切换
-  public showController2: boolean = true; // 选择模式与景点展示切换
-  public btnText: string = "开始推荐"; // 按钮文本
-  public sightsClickList: number[] = []; // 储存点击的景点列表
-  public timeChooser1: boolean = true; // 存储时间的选择列表
-  public timeChooser2: boolean = true;
-  public timeChooser3: boolean = true;
-  public timeChooser4: boolean = true;
-  public timeChooser5: boolean = true;
-  public timeChooser6: boolean = true;
-  public timeChooser7: boolean = true;
-  public modeChooser1: boolean = true; // 存储模式的选择列表
-  public modeChooser2: boolean = true;
-  public modeChooser3: boolean = true;
-  public choosedMode: number = 1; // 存储选中的推荐模式
-  public choosedKind: string = "寺庙观宇"; // 选中的景点类别
-  public ifShowKindChooser: boolean = false; // 是否显示类别选择器
-  public ifShowMask: boolean = false; // 是否显示遮罩
-  public userInput: string = ""; // 用户输入的景点描述
-  public ifShowInputer: boolean = false; // 用户输入弹窗
+  public selectedTime: number = 1 // 旅行天数
+  public showController1: boolean = true // 选择天数与选择模式切换
+  public showController2: boolean = true // 选择模式与景点展示切换
+  public btnText: string = '开始推荐' // 按钮文本
+  public sightsClickList: number[] = [] // 储存点击的景点列表
+  public timeChooser1: boolean = true // 存储时间的选择列表
+  public timeChooser2: boolean = true
+  public timeChooser3: boolean = true
+  public timeChooser4: boolean = true
+  public timeChooser5: boolean = true
+  public timeChooser6: boolean = true
+  public timeChooser7: boolean = true
+  public modeChooser1: boolean = true // 存储模式的选择列表
+  public modeChooser2: boolean = true
+  public modeChooser3: boolean = true
+  public choosedMode: number = 1 // 存储选中的推荐模式
+  public choosedKind: string = '寺庙观宇' // 选中的景点类别
+  public ifShowKindChooser: boolean = false // 是否显示类别选择器
+  public ifShowMask: boolean = false // 是否显示遮罩
+  public userInput: string = '' // 用户输入的景点描述
+  public ifShowInputer: boolean = false // 用户输入弹窗
 
   public toChooseMode(): void {
-    this.btnText = "确定模式";
-    this.showController1 = false;
+    this.btnText = '确定模式'
+    this.showController1 = false
   }
   public toChooseTime(): void {
-    this.showController1 = true;
-    this.btnText = "开始推荐";
-    this.modeChooser1 = true;
-    this.modeChooser2 = true;
-    this.modeChooser3 = true;
+    this.showController1 = true
+    this.btnText = '开始推荐'
+    this.modeChooser1 = true
+    this.modeChooser2 = true
+    this.modeChooser3 = true
   }
 
   public getChoosedTime(e: any): void {
-    const index: number = Number.parseInt(e.target.innerText[0], 10);
-    this.selectedTime = index;
-    const s = "timeChooser";
+    const index: number = Number.parseInt(e.target.innerText[0], 10)
+    this.selectedTime = index
+    const s = 'timeChooser'
     for (let i = 1; i <= 7; i++) {
       if (index === i) {
-        (this as any)[s + i] = false;
+        ;(this as any)[s + i] = false
       } else {
-        (this as any)[s + i] = true;
+        ;(this as any)[s + i] = true
       }
     }
   }
   public toMode1(): void {
-    this.modeChooser1 = false;
-    this.modeChooser2 = true;
-    this.modeChooser3 = true;
-    this.choosedMode = 1;
+    this.modeChooser1 = false
+    this.modeChooser2 = true
+    this.modeChooser3 = true
+    this.choosedMode = 1
   }
   public toMode2(): void {
-    this.modeChooser1 = true;
-    this.modeChooser2 = false;
-    this.modeChooser3 = true;
-    this.choosedMode = 2;
+    this.modeChooser1 = true
+    this.modeChooser2 = false
+    this.modeChooser3 = true
+    this.choosedMode = 2
   }
   public toMode3(): void {
-    this.modeChooser1 = true;
-    this.modeChooser2 = true;
-    this.modeChooser3 = false;
-    this.choosedMode = 3;
+    this.modeChooser1 = true
+    this.modeChooser2 = true
+    this.modeChooser3 = false
+    this.choosedMode = 3
   }
   public toRoutePlan(): void {
     // 景点展示
     if (this.choosedMode === 1) {
-      this.ifShowKindChooser = true;
-      this.ifShowMask = true;
-      this.modeChooser1 = true;
+      this.ifShowKindChooser = true
+      this.ifShowMask = true
+      this.modeChooser1 = true
     } else if (this.choosedMode === 2) {
-      this.ifShowInputer = true;
-      this.ifShowMask = true;
-      this.modeChooser2 = true;
+      this.ifShowInputer = true
+      this.ifShowMask = true
+      this.modeChooser2 = true
     } else {
-      this.showController2 = false;
-      this.modeChooser3 = true;
+      this.showController2 = false
+      this.modeChooser3 = true
       const loading = this.$loading({
         lock: true,
-        text: "正在八百里加急获取景点信息！！！",
-        spinner: "el-icon-loading",
-        background: "rgba(0,0,0,0.7)",
-      });
-      (this as any).$http
-        .get("/yx/getRandomSight", { day: this.selectedTime })
+        text: '正在八百里加急获取景点信息！！！',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0,0,0,0.7)',
+      })
+      setTimeout(() => {
+        loading.close()
+        this.$router.push('/guide')
+      }, 2000)
+      ;(this as any).$http
+        .get('/yx/getRandomSight', { day: this.selectedTime, user: 'yangxuan' })
         .then((res: any) => {
-          loading.close();
-          this.$router.push("/guide");
+          loading.close()
+          this.$router.push('/guide')
 
-          this.$store.state.sightList = res.sightList;
-        });
+          this.$store.state.sightList = res.sightList
+        })
     }
   }
   public backToChooseMode(): void {
-    this.showController2 = true;
+    this.showController2 = true
   }
   public toGuideView(): void {
-    this.$router.push("/guide");
+    this.$router.push('/guide')
   }
   public confirmKind(): void {
-    this.showController2 = false;
-    this.ifShowKindChooser = false;
-    this.ifShowMask = false;
+    this.showController2 = false
+    this.ifShowKindChooser = false
+    this.ifShowMask = false
     const loading = this.$loading({
       lock: true,
-      text: "正在八百里加急获取景点信息！！！",
-      spinner: "el-icon-loading",
-      background: "rgba(0,0,0,0.7)",
-    });
+      text: '正在八百里加急获取景点信息！！！',
+      spinner: 'el-icon-loading',
+      background: 'rgba(0,0,0,0.7)',
+    })
     setTimeout(() => {
-      loading.close();
-      this.$router.push("/guide");
-    }, 2000);
-    (this as any).$http
-      .get("/yx/getSightKind", {
+      loading.close()
+      this.$router.push('/guide')
+    }, 2000)
+    ;(this as any).$http
+      .get('/yx/getSightKind', {
         kind: this.choosedKind,
         day: this.selectedTime,
       })
       .then((res: any) => {
-        this.$store.state.sightList = res.sightList;
-      });
+        this.$store.state.sightList = res.sightList
+      })
   }
   public cancelChoose(): void {
-    this.ifShowKindChooser = false;
-    this.ifShowMask = false;
-    this.modeChooser1 = true;
+    this.ifShowKindChooser = false
+    this.ifShowMask = false
+    this.modeChooser1 = true
   }
   public confirmInput(): void {
-    this.showController2 = false;
-    this.ifShowInputer = false;
-    this.ifShowMask = false;
+    this.showController2 = false
+    this.ifShowInputer = false
+    this.ifShowMask = false
     const loading = this.$loading({
       lock: true,
-      text: "正在八百里加急获取景点信息！！！",
-      spinner: "el-icon-loading",
-      background: "rgba(0,0,0,0.7)",
-    });
+      text: '正在八百里加急获取景点信息！！！',
+      spinner: 'el-icon-loading',
+      background: 'rgba(0,0,0,0.7)',
+    })
     setTimeout(() => {
-      loading.close();
-      this.$router.push("/guide");
-    }, 2000);
-    (this as any).$http
-      .get("/yx/getCertainSight", {
+      loading.close()
+      this.$router.push('/guide')
+    }, 2000)
+    ;(this as any).$http
+      .get('/yx/getCertainSight', {
         userInput: this.userInput,
         day: this.selectedTime,
       })
       .then((res: any) => {
-        this.$store.state.sightList = res.sightList;
-      });
+        this.$store.state.sightList = res.sightList
+      })
   }
   public cancelInput(): void {
-    this.ifShowInputer = false;
-    this.ifShowMask = false;
-    this.modeChooser2 = true;
+    this.ifShowInputer = false
+    this.ifShowMask = false
+    this.modeChooser2 = true
   }
 }
 </script>
@@ -290,7 +268,7 @@ export default class extends Vue {
   width: 100%;
   height: calc(100vh - 1px);
   border-top: 1px solid lightgreen;
-  background-image: url("~@/assets/images/plan/plan02.jpg");
+  background-image: url('~@/assets/images/plan/plan02.jpg');
   background-size: cover;
   .require-wrapper {
     // background: white;
@@ -323,31 +301,31 @@ export default class extends Vue {
     }
     .time-chooser div:nth-child(1) {
       width: 14%;
-      background: red;
+      background: rgba($color: rgb(158, 249, 158), $alpha: 1);
     }
     .time-chooser div:nth-child(2) {
       width: 28%;
-      background: orange;
+      background: rgba($color: rgb(122, 243, 122), $alpha: 1);
     }
     .time-chooser div:nth-child(3) {
       width: 42%;
-      background: yellow;
+      background: rgba($color: rgb(91, 246, 91), $alpha: 1);
     }
     .time-chooser div:nth-child(4) {
       width: 56%;
-      background: green;
+      background: rgba($color: rgb(61, 244, 61), $alpha: 1);
     }
     .time-chooser div:nth-child(5) {
       width: 70%;
-      background: #00ffff;
+      background: rgba($color: rgb(37, 214, 37), $alpha: 1);
     }
     .time-chooser div:nth-child(6) {
       width: 84%;
-      background: blue;
+      background: rgba($color: rgb(18, 159, 18), $alpha: 1);
     }
     .time-chooser div:nth-child(7) {
       width: 98%;
-      background: purple;
+      background: rgba($color: rgb(6, 116, 6), $alpha: 1);
     }
     .confirm {
       margin-left: calc(50% - 100px);
@@ -356,12 +334,20 @@ export default class extends Vue {
         width: 200px;
         height: 50px;
         margin-top: 25px;
-        color: yellowgreen;
+        color: white;
+        background: linear-gradient(
+          to right,
+          rgba($color: rgb(158, 249, 158), $alpha: 1),
+          rgba($color: rgb(6, 116, 6), $alpha: 1)
+        );
         font-size: 20px;
         font-weight: bold;
         &:hover {
-          background: rgba($color: yellow, $alpha: 0.5);
-          color: white;
+          background: linear-gradient(
+            to left,
+            rgba($color: rgb(158, 249, 158), $alpha: 1),
+            rgba($color: rgb(6, 116, 6), $alpha: 1)
+          );
         }
       }
     }
