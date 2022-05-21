@@ -1,25 +1,26 @@
 <template>
   <div class="guide-wrapper">
     <div class="scenic-choose">
-      <el-steps :active="0" direction="vertical" class="step-style">
+      <el-steps :active="active" direction="vertical" class="step-style">
         <el-step
           v-for="(item, index) in scenicArr"
           :key="index"
+          :process-status="processStatus[index]"
           :title="`第 ${index + 1} 天`"
-          @click.native="handleStepClick(index + 1)"
+          @click.native="handleStepClick(index)"
         ></el-step>
       </el-steps>
       <div class="scenic-detail">
-        <p>第{{ active }}天的游览景点推荐</p>
+        <h3>第{{ active + 1 }}天的游览景点推荐</h3>
         <div class="scenic-introduce">
           <div
             class="detail-item"
-            v-for="(item, index) in scenicArr[active - 1]"
+            v-for="(item, index) in scenicArr[active]"
             :key="index"
           >
-            <div class="item-name">
+            <h5 class="item-name">
               {{ (item || {}).content || "无" }}
-            </div>
+            </h5>
             <div
               class="item-introduction"
               style="
@@ -37,7 +38,7 @@
           </div>
         </div>
         <div class="generate-button">
-          <el-button type="success" @click="generateMap"
+          <el-button type="primary" @click="generateMap"
             >生成可视化路线</el-button
           >
         </div>
@@ -45,7 +46,7 @@
     </div>
     <div class="map-generate">
       <div class="route-info">
-        <p class="info-title">路线推荐结果</p>
+        <p class="info-title">路段出行信息</p>
         <div class="info-detail">
           <div class="route-detail">
             <p
@@ -57,7 +58,7 @@
               {{
                 `${
                   index !== dailyScenic.length - 1
-                    ? `● ${(item || {}).content || "暂无"}--->${
+                    ? ` ${(item || {}).content || "暂无"} -> ${
                         (dailyScenic[index + 1] || {}).content || "暂无"
                       }`
                     : "入住XXXXXXXXX酒店"
@@ -68,7 +69,7 @@
           <div class="trip-mode">
             <p>
               {{
-                `已选择路段:   ${(origin || {}).content || "起点"} ---> ${
+                `已选择路段:   ${(origin || {}).content || "起点"} --> ${
                   (destination || {}).content || "终点"
                 }`
               }}
@@ -141,6 +142,8 @@ import PositionChoose from "../components/Guide/position-choose.vue";
   components: { PositionChoose },
 })
 export default class Guide extends Vue {
+  public processStatus: String[] = ["process"];
+  public loading: any = {};
   //  他市用户选择的路径规划起点、终点
   public start: any = {
     latitude: "",
@@ -170,21 +173,27 @@ export default class Guide extends Vue {
   public editable: boolean = true;
   //  算法返回的当天旅游建议
   public dailyScenic: any[] = [];
-  public active: number = 1;
+  public active: number = 0;
   public scenicArr: any[] = [];
 
   // 步进器的点击事件
   public handleStepClick(index: number) {
     this.active = index;
-    this.dailyScenic = this.scenicArr[index - 1];
-    console.log(this.$store.state.sightList);
+    this.dailyScenic = this.scenicArr[index];
+    this.processStatus = [];
+    for (let i = 0; i < this.scenicArr.length; i++) {
+      this.processStatus.push(i === index - 1 ? "process" : "wait");
+    }
+    console.log(this.processStatus);
 
-    console.log(this.scenicArr[index - 1]);
+    // console.log(this.$store.state.sightList);
+
+    // console.log(this.scenicArr[index - 1]);
   }
   // 点击进行路径规划,规划结束之后在地图上画出路线
   public generateMap() {
     (this.$refs.mapId as any).scrollIntoView(false);
-    const scenics = _.cloneDeep(this.scenicArr[this.active - 1]);
+    const scenics = _.cloneDeep(this.scenicArr[this.active]);
     const type: string = "driving";
     const origin = scenics.shift().position.join(",");
     const destination = scenics.pop().position.join(",");
@@ -311,12 +320,6 @@ export default class Guide extends Vue {
 
   // 获取用户定位
   public getPosition(res: any) {
-    const loading = this.$loading({
-      lock: true,
-      text: "正在根据你的当前定位进行合理路径推荐，请稍后！",
-      spinner: "el-icon-loading",
-      background: "rgba(0,0,0,0.7)",
-    });
     const self = this;
     const geolocation = new (AMap as any).Geolocation({
       // 是否使用高精度定位，默认：true
@@ -326,7 +329,7 @@ export default class Guide extends Vue {
     });
     geolocation.getCurrentPosition(onComplete, onError);
     function onComplete(status: string, result: any) {
-      // data是具体的定位信息
+      // data是具体的定位信息118.102576,24.436343
       self.position[1] = result.position.lat;
       self.position[0] = result.position.lng;
       console.log("用户当前定位信息： ", self.position);
@@ -343,7 +346,7 @@ export default class Guide extends Vue {
             num = 1;
           for (const value of sightArr) {
             if (num % 5 === 0) {
-              console.log("list1", arr);
+              // console.log("list1", arr);
               self.scenicArr.push(arr);
               arr = new Array();
               num = 1;
@@ -352,12 +355,12 @@ export default class Guide extends Vue {
             arr.push(self.$store.state.sightList[value - 1]);
           }
           if (arr.length) self.scenicArr.push(arr);
-          console.log("景点：", self.scenicArr);
+          // console.log("景点：", self.scenicArr);
 
           self.dailyScenic = self.scenicArr[0];
 
-          console.log("景点列表", self.$store.state.sightList);
-          loading.close();
+          // console.log("景点列表", self.$store.state.sightList);
+          self.loading.close();
         });
     }
 
@@ -384,6 +387,12 @@ export default class Guide extends Vue {
             showClose: true,
             message: "当前定位为厦门境内,以当前定位地址进行路径规划。",
             type: "info",
+          });
+          this.loading = this.$loading({
+            lock: true,
+            text: "正在根据你的当前定位进行合理路径推荐，请稍后！",
+            spinner: "el-icon-loading",
+            background: "rgba(0,0,0,0.7)",
           });
           // settimeout是为了加载地图组件，避免报错undefined
           setTimeout(() => {
@@ -473,12 +482,33 @@ export default class Guide extends Vue {
     }
     .step-style {
       .el-step__title.is-wait {
-        color: black;
-      }
-      .el-step__title.is-process {
-        font-weight: 500;
+        cursor: pointer;
+        color: rgb(0, 0, 0);
       }
       .el-step__head.is-wait {
+        cursor: pointer;
+        color: black;
+        border-color: black;
+      }
+      .el-step__title.is-process {
+        cursor: pointer;
+        font-weight: 500;
+        color: rgb(13, 0, 255);
+      }
+      .el-step__head.is-process {
+        cursor: pointer;
+        color: rgb(13, 0, 255);
+        border-color: rgb(13, 0, 255);
+      }
+
+      .el-step__title.is-finish {
+        cursor: pointer;
+        font-weight: 500;
+        border-color: black;
+        color: black;
+      }
+      .el-step__head.is-finish {
+        cursor: pointer;
         color: black;
         border-color: black;
       }
@@ -491,8 +521,8 @@ export default class Guide extends Vue {
       margin-left: 5rem;
       background: rgb(228, 224, 224);
       box-shadow: 0px 0px 10px 5px #aaa;
-      p {
-        margin-bottom: 2rem;
+      h3 {
+        margin-bottom: 1rem;
         width: 100%;
         text-align: center;
       }
@@ -502,10 +532,12 @@ export default class Guide extends Vue {
         justify-content: center;
         align-items: center;
         margin-bottom: 1rem;
+
         .el-button--primary {
-          color: #fff;
-          background-color: #a6a6a6;
-          border-color: #a6a6a6;
+          border-radius: 5rem;
+          // color: #fff;
+          // background-color: #a6a6a6;
+          // border-color: #a6a6a6;
         }
       }
       .scenic-introduce {
@@ -569,6 +601,7 @@ export default class Guide extends Vue {
             justify-content: flex-start;
             .el-button {
               margin-right: auto;
+              border-radius: 3rem;
             }
           }
           .mode-detail {
