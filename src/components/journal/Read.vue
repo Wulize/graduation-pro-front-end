@@ -2,7 +2,7 @@
   <div class="read-wrapper">
     <div class="journal-list" ref="listWrapper" v-if="ifShowList">
       <div class="list-column1 list-item">
-        <div class="item" v-for="(journal, index) in journalList1" :key="index">
+        <div class="item" v-for="(journal, index) in journalList1" :key="index" @click="toWatchJournal(journal)">
           <div class="item-tag">
             <div class="tag">{{ journal.tab }}</div>
             <div class="time">{{ journal.date }}</div>
@@ -35,7 +35,7 @@
         </div>
       </div>
       <div class="list-column2 list-item">
-        <div class="item" v-for="(journal, index) in journalList2" :key="index">
+        <div class="item" v-for="(journal, index) in journalList2" :key="index" @click="toWatchJournal(journal)">
           <div class="item-tag">
             <div class="tag">{{ journal.tab }}</div>
             <div class="time">{{ journal.date }}</div>
@@ -68,7 +68,7 @@
         </div>
       </div>
       <div class="list-column3 list-item">
-        <div class="item" v-for="(journal, index) in journalList3" :key="index">
+        <div class="item" v-for="(journal, index) in journalList3" :key="index" @click="toWatchJournal(journal)">
           <div class="item-tag">
             <div class="tag">{{ journal.tab }}</div>
             <div class="time">{{ journal.date }}</div>
@@ -237,7 +237,7 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .read-wrapper {
-  width: 100%;
+  width: 95%;
   padding-bottom: 30px;
   // height: 100%;
   .journal-list {
@@ -246,14 +246,18 @@ export default class extends Vue {
     flex-wrap: wrap;
     justify-content: space-between;
     .list-item {
-      width: 350px;
+      width: 320px;
       .item {
         background: white;
         border-radius: 10px;
         border: 1px solid white;
         box-shadow: 0 0 10px white;
+        cursor: pointer;
         &:not(:nth-child(1)) {
-          margin-top: 20px;
+          margin-top: 30px;
+        }
+        &:hover {
+          transform: scale(1.1);
         }
         .item-tag {
           display: flex;
@@ -284,6 +288,18 @@ export default class extends Vue {
           cursor: pointer;
           &:hover {
             opacity: 0.6;
+            animation: wordMove 2s infinite;
+          }
+          @keyframes wordMove {
+            0% {
+              margin-left: 20px;
+            }
+            // 50% {
+            //   margin-left: 50px;
+            // }
+            100% {
+              margin-left: 50px;
+            }
           }
         }
         .pic {
@@ -377,33 +393,36 @@ export default class extends Vue {
         top: 50%;
         transform: translate(-50%, -50%);
         text-align: center;
-        background: rgba($color: yellow, $alpha: 0.5);
-        box-shadow: 0 0 10px yellow;
+        background: linear-gradient(to bottom, white, lightgreen, white);
+        box-shadow: 0 0 10px white;
         .title {
           font-size: 50px;
-          color: white;
+          color: gray;
         }
         .author {
           font-size: 20px;
-          color: rgba($color: white, $alpha: 0.7);
+          color: rgba($color: gray, $alpha: 0.7);
         }
       }
       .back-btn {
         position: absolute;
         left: 0;
         top: 0;
+
         .el-button {
           width: 50px;
           height: 30px;
           font-size: 20px;
-          color: white;
+          color: gray;
           display: flex;
           justify-content: center;
           align-items: center;
-          background: rgba($color: yellow, $alpha: 0.5);
+          background: linear-gradient(to right, white, rgb(189, 237, 189), white);
           &:hover {
             background: lightgreen;
             color: white;
+            height: 50px;
+            border-radius: 50%;
           }
         }
       }
@@ -413,7 +432,7 @@ export default class extends Vue {
       height: 500px;
       margin-top: 30px;
       overflow: hidden;
-      background: rgba($color: white, $alpha: 0.8);
+      background: rgba($color: white, $alpha: 1);
       box-shadow: 0 0 10px white;
       .content {
         width: 105%;

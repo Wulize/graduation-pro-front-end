@@ -63,10 +63,10 @@ export default class extends Vue {
     height: 80%;
     // background: white;
     margin-left: 10%;
-    margin-top: 100px;
+    margin-top: 110px;
     .user-wrapper {
       width: 35%;
-      height: 80px;
+      height: 100px;
       background: white;
       display: flex;
       justify-content: space-evenly;
@@ -88,7 +88,7 @@ export default class extends Vue {
         // align-items: center;
         color: gray;
         .name {
-          font-size: 18px;
+          font-size: 21px;
         }
         .description {
           font-size: 15px;
