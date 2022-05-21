@@ -1,7 +1,7 @@
 <template>
   <div class="guide-wrapper">
     <div class="scenic-choose">
-      <el-steps :active="active" direction="vertical" class="step-style">
+      <el-steps :active="active" direction="horizontal" class="step-style">
         <el-step
           v-for="(item, index) in scenicArr"
           :key="index"
@@ -11,23 +11,23 @@
         ></el-step>
       </el-steps>
       <div class="scenic-detail">
-        <h3>第{{ active + 1 }}天的游览景点推荐</h3>
+        <div class="title">第{{ active + 1 }}天的游览景点推荐</div>
         <div class="scenic-introduce">
           <div
             class="detail-item"
             v-for="(item, index) in scenicArr[active]"
             :key="index"
           >
-            <h5 class="item-name">
+            <div class="item-name">
               {{ (item || {}).content || "无" }}
-            </h5>
+            </div>
             <div
               class="item-introduction"
               style="
                 overflow: hidden;
                 display: -webkit-box;
                 -webkit-box-orient: vertical;
-                -webkit-line-clamp: 10;
+                -webkit-line-clamp: 6;
               "
             >
               {{ (item || {}).description || "暂无相关介绍" }}
@@ -54,6 +54,7 @@
               :key="index"
               title="点击查看具体信息"
               @click="chooseRoute(index)"
+              :class="routerIndex === index ? 'p_click' : ''"
             >
               {{
                 `${
@@ -61,19 +62,12 @@
                     ? ` ${(item || {}).content || "暂无"} -> ${
                         (dailyScenic[index + 1] || {}).content || "暂无"
                       }`
-                    : "入住XXXXXXXXX酒店"
+                    : "请选择以上路段之一"
                 }  `
               }}
             </p>
           </div>
           <div class="trip-mode">
-            <p>
-              {{
-                `已选择路段:   ${(origin || {}).content || "起点"} --> ${
-                  (destination || {}).content || "终点"
-                }`
-              }}
-            </p>
             <div class="mode-choose">
               <el-button @click="generateModeInfo(1)">步行</el-button>
               <el-button @click="generateModeInfo(2)">公交</el-button>
@@ -93,7 +87,7 @@
                 <p>{{ modeItemInfo.cost }}元</p>
               </div>
               <div class="detail-item">
-                <p>工具(默认时间最短):</p>
+                <p>工具:</p>
                 <p>{{ modeItemInfo.mode }}</p>
               </div>
             </div>
@@ -142,6 +136,7 @@ import PositionChoose from "../components/Guide/position-choose.vue";
   components: { PositionChoose },
 })
 export default class Guide extends Vue {
+  public routerIndex: number = -1;
   public processStatus: String[] = ["process"];
   public loading: any = {};
   //  他市用户选择的路径规划起点、终点
@@ -278,6 +273,7 @@ export default class Guide extends Vue {
       this.origin = this.dailyScenic[index];
       this.destination = this.dailyScenic[index + 1];
     }
+    this.routerIndex = index;
   }
 
   // 生成两个景点之间的不同出行方式信息
@@ -475,55 +471,88 @@ export default class Guide extends Vue {
     width: 100%;
     height: 29rem;
     display: flex;
+    flex-direction: column;
     margin-bottom: 1rem;
-    .el-steps--vertical {
-      margin-left: 2rem;
-    }
+    // .el-steps--horizontal {
+    //   margin-left: 2rem;
+    // }
     .step-style {
+      width: 80%;
+      margin-left: 10%;
+      background: white;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0px 0px 5px 5px white;
       .el-step__title.is-wait {
         cursor: pointer;
-        color: rgb(0, 0, 0);
+        color: rgb(181, 216, 228);
       }
       .el-step__head.is-wait {
         cursor: pointer;
-        color: black;
-        border-color: black;
+        color: rgb(181, 216, 228);
+        border-color: rgb(181, 216, 228);
       }
       .el-step__title.is-process {
         cursor: pointer;
         font-weight: 500;
-        color: rgb(13, 0, 255);
+        color: rgb(105, 198, 229);
       }
       .el-step__head.is-process {
         cursor: pointer;
-        color: rgb(13, 0, 255);
-        border-color: rgb(13, 0, 255);
+        color: rgb(105, 198, 229);
+        border-color: rgb(105, 198, 229);
       }
 
       .el-step__title.is-finish {
         cursor: pointer;
         font-weight: 500;
-        border-color: black;
-        color: black;
+        border-color: rgb(24, 180, 231);
+        color: rgb(24, 180, 231);
       }
       .el-step__head.is-finish {
         cursor: pointer;
-        color: black;
-        border-color: black;
+        color: rgb(24, 180, 231);
+        border-color: rgb(24, 180, 231);
       }
       .el-step__line {
-        background-color: #565656;
+        background-color: rgb(181, 216, 228);
+      }
+      .el-step__line.is-wait {
+        background-color: rgb(181, 216, 228);
+      }
+      .el-step__line.is-process {
+        background-color: rgb(105, 198, 229);
+      }
+      .el-step__line.is-finish {
+        background-color: rgb(24, 180, 231);
+      }
+      .el-step__icon {
+        width: 30px;
+        height: 30px;
+        &:hover {
+          transform: scale(1.2);
+        }
+      }
+      .el-step__icon.is-text {
+        &:hover {
+          font-size: 22px;
+        }
       }
     }
     .scenic-detail {
       width: 80%;
-      margin-left: 5rem;
-      background: rgb(228, 224, 224);
-      box-shadow: 0px 0px 10px 5px #aaa;
-      h3 {
-        margin-bottom: 1rem;
-        width: 100%;
+      margin-left: 10%;
+      background: white;
+      box-shadow: 0px 0px 5px 5px white;
+      .title {
+        margin-bottom: 2rem;
+        margin-top: 2rem;
+        // width: 100%;
         text-align: center;
+        background: linear-gradient(to right, white, lightblue, white);
+        color: rgba(black, 0.6);
+        font-size: 20px;
+        font-weight: bold;
       }
       .generate-button {
         width: 100%;
@@ -535,27 +564,58 @@ export default class Guide extends Vue {
         .el-button--primary {
           border-radius: 5rem;
           // color: #fff;
-          // background-color: #a6a6a6;
-          // border-color: #a6a6a6;
+          width: 20%;
+          background-color: rgb(190, 219, 228);
+          border-color: rgb(190, 219, 228);
+          &:hover {
+            background: rgb(134, 207, 230);
+            animation: btnMove 3s infinite;
+          }
+          @keyframes btnMove {
+            0% {
+              width: 20%;
+            }
+            100% {
+              width: 50%;
+            }
+          }
         }
       }
       .scenic-introduce {
         width: 100%;
-        height: 20rem;
+        height: 18rem;
         display: flex;
         .detail-item {
           flex-grow: 1;
           flex-shrink: 1;
           margin-left: 0.8rem;
           margin-right: 0.8rem;
+          height: 16rem;
           width: 350px;
           word-break: break-all;
+          color: rgba(lightblue, 0.6);
+          box-shadow: 0 0 2px 2px rgb(192, 222, 232);
+          border-radius: 5px;
+          background: white;
           .item-introduction {
-            margin-bottom: 1rem;
+            // margin-bottom: 1rem;
+            background: white;
+            color: rgba(black, 0.4);
+            width: 80%;
+            margin-left: 10%;
+            // box-shadow: 0 0 2px 2px rgb(195, 222, 231);
           }
           .item-name {
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
+            margin-top: 1rem;
+            // height: 20px;
+            background: white;
+            color: rgba(black, 0.6);
+            font-size: 18px;
+            font-weight: bold;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid lightblue;
           }
         }
       }
@@ -563,55 +623,105 @@ export default class Guide extends Vue {
   }
   .map-generate {
     display: flex;
-    width: 94%;
+    width: 80%;
     background: white;
-    margin: 3% 4% 0 2%;
+    margin-left: 10%;
+    margin-top: 10%;
+    height: 70%;
     margin-bottom: 2rem;
     box-shadow: 0px 0px 10px 5px #aaa;
     .route-info {
       width: 50%;
       .info-title {
-        width: 100%;
+        // width: 100%;
         text-align: center;
+        font-size: 20px;
+        color: rgba(black, 0.6);
+        background: linear-gradient(to right, white, lightblue, white);
       }
       .info-detail {
         display: flex;
-        width: 100%;
+        width: 96%;
         height: 80%;
-        padding-left: 1%;
+        // padding-left: 1%;
+        margin-left: 2%;
+        flex-direction: column;
         .route-detail {
-          height: 100%;
-          width: 40%;
+          // height: 80%;
+          width: 100%;
           display: flex;
-          flex-direction: column;
+          justify-content: space-evenly;
+          align-content: flex-start;
+          flex-wrap: wrap;
+          // flex-direction: column;
+          & p:last-child {
+            display: none;
+          }
           p {
             cursor: pointer;
-            margin-bottom: auto;
+            box-shadow: 0 0 1px 1px lightblue;
+            width: 45%;
+            text-align: center;
+            color: rgba(black, 0.5);
+            font-size: 16px;
+            margin: 0.5rem 0 0.5rem 0;
+            padding: 0;
+            &:hover {
+              transform: scale(1.1);
+            }
+          }
+          .p_click {
+            background: lightblue;
           }
         }
         .trip-mode {
-          width: 60%;
+          width: 100%;
           height: 100%;
-          p {
-            text-align: center;
-          }
+          margin-top: 20px;
+          margin-bottom: -1rem;
+          box-shadow: 0 0 1px 1px lightgray;
+          // p {
+          //   width: 100%;
+          //   box-shadow: 0 0 2px 2px lightgray;
+          //   font-size: 16px;
+          //   color: rgba(black, 0.7);
+          //   // margin-top: 20px;
+          // }
           .mode-choose {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-evenly;
+            align-items: center;
+            height: 50px;
             .el-button {
-              margin-right: auto;
+              height: 20px;
               border-radius: 3rem;
+              display: flex;
+              align-items: center;
             }
           }
           .mode-detail {
             display: flex;
-            flex-direction: column;
-            width: 90%;
+            flex-wrap: wrap;
+            width: 100%;
+            margin-top: 20px;
+            height: 140px;
             .detail-item {
               display: flex;
+              width: 100%;
               p {
-                width: 50%;
-                text-align: start;
+                width: 40%;
+                text-align: center;
+                margin: 0.5rem 0 0.5rem 0;
+              }
+              p:first-child {
+                color: rgba(black, 0.6);
+                font-size: 18px;
+                margin-left: 10%;
+                text-align: left;
+              }
+              p:last-child {
+                font-size: 18px;
+                color: rgba(rgb(191, 77, 77), 0.6);
               }
             }
           }
@@ -620,7 +730,7 @@ export default class Guide extends Vue {
     }
     .map-wrap {
       width: 50%;
-      height: 500px;
+      height: 450px;
     }
   }
 }
