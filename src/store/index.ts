@@ -10,6 +10,7 @@ export default new Vuex.Store({
     unreadMsg: 0,
     isConnect: false,
     sightList: [],
+    longgestSight:''
   },
   mutations: {},
   actions: {},

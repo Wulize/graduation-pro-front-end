@@ -188,14 +188,31 @@ export default class extends Vue {
         loading.close()
         this.$router.push('/guide')
       }, 2000)
-      ;(this as any).$http
-        .get('/yx/getRandomSight', { day: this.selectedTime, user: 'yangxuan' })
-        .then((res: any) => {
-          loading.close()
-          this.$router.push('/guide')
-
-          this.$store.state.sightList = res.sightList
-        })
+      if (!this.$store.state.longgestSight) {
+        ;(this as any).$http
+          .get('/yx/getRandomSight', {
+            day: this.selectedTime,
+            user: 'yangxuan',
+            sightName:'no'
+          })
+          .then((res: any) => {
+            loading.close()
+            this.$router.push('/guide')
+            this.$store.state.sightList = res.sightList
+          })
+      } else {
+        ;(this as any).$http
+          .get('/yx/getRandomSight', {
+            day: this.selectedTime,
+            user: 'yangxuan',
+            sightName:this.$store.state.longgestSight
+          })
+          .then((res: any) => {
+            loading.close()
+            this.$router.push('/guide')
+            this.$store.state.sightList = res.sightList
+          })
+      }
     }
   }
   public backToChooseMode(): void {
